@@ -3,9 +3,11 @@ build/
 node_modules/
 scripts/
 test/
+
 .babelrc
 .eslintignore
 .eslintrc
 electron-builder.yml
 
+*.css
 *.zip

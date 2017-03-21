@@ -1,5 +1,6 @@
 const reducers =  function(){
   return {
-      text: "hey"
+      text: "John"
     }
-}
+};
+export default reducers;

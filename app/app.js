@@ -1,21 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { Router, hashHistory } from 'react-router';
-import { syncHistoryWithStore } from 'react-router-redux';
-import routes from './routes';
-import configureStore from './store';
-import reducers from "./reducers";
+import {createStore} from 'redux';
+import reducers from "./reducers/index.js";
+import App from "./components/app.js";
 
 const initialState = {};
-const store = configureStore(reducers);
+const store = createStore(reducers);
 
-// ReactDOM.render(
-//   <Provider store={store}>
-//     <Router history={routerHistory} routes={routes} />
-//   </Provider>,
-//   rootElement
-// );
+//Provider grants access to store to all components
 ReactDOM.render(
-  <h2>hey now</h2>, document.getElementById("app")
-);
+  <Provider store={store}>
+    <App/>
+  </Provider>
+  , document.getElementById("app"));
