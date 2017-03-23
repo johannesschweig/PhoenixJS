@@ -2,13 +2,13 @@ import React , {Component} from "react";
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
 
-class NavBar extends Component {
+class Cover extends Component {
 
   render(){
     return(
-      <nav>nav</nav>
+      <h2>cover</h2>
     );
   }
 }
 
-export default NavBar;
+export default Cover;

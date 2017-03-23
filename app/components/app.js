@@ -1,13 +1,12 @@
 import React  from "react";
 import NavBar from "./nav-bar.js";
-
-// import footer from "../css/style.css";
+import Cover from "./cover.js";
+import Tracklist from "./tracklist.js";
+import Controls from "./controls.js";
 
 const App = () => (
   <div>
-    <NavBar></NavBar>
-    <div>main</div>
-    <footer>footer</footer>
+    <Tracklist/>
   </div>
 );
 

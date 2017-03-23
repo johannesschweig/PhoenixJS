@@ -1,13 +1,15 @@
 .vscode/
+alt/
 build/
 node_modules/
 scripts/
 test/
 
+*.css
+*.zip
+
 .babelrc
 .eslintignore
 .eslintrc
 electron-builder.yml
-
-*.css
-*.zip
+notes.txt
