@@ -1,10 +1,10 @@
 import React , {Component} from "react";
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
-import {deleteTrack} from "../actions/index.js";
+import * as Actions from "../actions/index.js";
 
 class Tracklist extends Component {
-
+   //populates <li> with items from state
   createTracklist(){
     return this.props.tracklist.map((track) => {
       return(
@@ -13,6 +13,11 @@ class Tracklist extends Component {
     });
   }
 
+  //adds Track from the searchfield
+  addTrack(){
+     this.props.addTrack({id: Math.floor(Math.random() * 1000), title: this.refs.searchText.value});
+ }
+
   render(){
     return(
       <div>
@@ -20,6 +25,8 @@ class Tracklist extends Component {
         <ul>
           {this.createTracklist()}
         </ul>
+        <textarea ref="searchText"/>
+        <button onClick={this.addTrack.bind(this)}>Add</button>
       </div>
     );
   }
@@ -33,7 +40,7 @@ function mapStateToProps(state){
 
 //maps actions to props
 function mapDispatchToProps(dispatch){
-  return bindActionCreators({deleteTrack}, dispatch);
+  return bindActionCreators(Actions, dispatch);
 }
 
 //Turn dump component into smart container

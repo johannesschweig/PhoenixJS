@@ -5,3 +5,10 @@ export const deleteTrack = (id) => {
     payload: id
   };
 };
+
+export const addTrack = (track) => {
+   return {
+      type: "ADD_TRACK",
+      payload: track
+   }
+}
