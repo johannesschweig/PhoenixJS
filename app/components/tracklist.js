@@ -8,11 +8,19 @@ class Tracklist extends Component {
   createTracklist(){
     return this.props.tracklist.map((track) => {
       return(
-          <li key={track.id} onClick={() => this.props.deleteTrack(track.id)}>{track.title}</li>
+          <li key={track.id} onClick={(e) => this.clickedTrack(track, e)} onContextMenu={(e) => this.clickedTrack(track, e)}>{track.title}</li>
       );
     });
   }
 
+  //plays/deletes Track from tracklist
+  clickedTrack(track, e){
+     if(e.nativeEvent.which==1){ //left click
+        this.props.playTrack(track);
+     }else if (e.nativeEvent.which==3) { //right click
+        this.props.deleteTrack(track.id);
+     }
+ }
   //adds Track from the searchfield
   addTrack(){
      this.props.addTrack({id: Math.floor(Math.random() * 1000), title: this.refs.searchText.value});

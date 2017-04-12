@@ -1,7 +1,5 @@
 const initialState = [
- {id: 1, title: "Zu spät"},
- {id: 2, title: "Hello"},
- {id: 3, title: "Hey Now"}
+   {id: 1, title: "well"}
 ];
 
 export function TracklistReducer(state=initialState, action){
@@ -16,6 +14,8 @@ export function TracklistReducer(state=initialState, action){
       case "ADD_TRACK_REJECTED":
          return state;
          break;
+      case "PLAY_TRACK":
+         return state;
     }
     return state;
 }
