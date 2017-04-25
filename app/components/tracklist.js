@@ -26,6 +26,11 @@ class Tracklist extends Component {
      this.props.addTrack({id: Math.floor(Math.random() * 1000), title: this.refs.searchText.value});
  }
 
+   //rebuild the database
+   rebuildDb(){
+      this.props.rebuildDb(this.props.application.database);
+   }
+
   render(){
     return(
       <div>
@@ -35,6 +40,7 @@ class Tracklist extends Component {
         </ul>
         <textarea ref="searchText"/>
         <button onClick={this.addTrack.bind(this)}>Add</button>
+        <button onClick={this.rebuildDb.bind(this)}>Rebuild database</button>
       </div>
     );
   }
@@ -42,6 +48,7 @@ class Tracklist extends Component {
 //maps state (passed in) as props to components
 function mapStateToProps(state){
   return {
+    application: state.application,
     tracklist: state.tracklist
   };
 }

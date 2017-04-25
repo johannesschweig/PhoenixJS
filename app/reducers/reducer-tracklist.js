@@ -1,6 +1,4 @@
-const initialState = [
-   {id: 1, title: "well"}
-];
+const initialState = [];
 
 export function TracklistReducer(state=initialState, action){
    switch(action.type){
@@ -16,6 +14,7 @@ export function TracklistReducer(state=initialState, action){
          break;
       case "PLAY_TRACK":
          return state;
+         break;
     }
     return state;
 }

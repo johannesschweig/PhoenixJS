@@ -14,3 +14,4 @@ test/
 .eslintrc
 electron-builder.yml
 notes.txt
+musiccollection.db

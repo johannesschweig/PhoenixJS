@@ -1,7 +1,9 @@
 import {combineReducers} from "redux";
 import {TracklistReducer} from "./reducer-tracklist.js";
+import {ApplicationReducer} from "./reducer-application.js";
 
 const reducers =  combineReducers({
+      application: ApplicationReducer,
       tracklist: TracklistReducer
 });
 export default reducers;
