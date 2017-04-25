@@ -8,10 +8,10 @@ test/
 *.css
 *.zip
 *.mp3
+*.db
 
 .babelrc
 .eslintignore
 .eslintrc
 electron-builder.yml
 notes.txt
-musiccollection.db

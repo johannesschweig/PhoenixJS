@@ -21,14 +21,21 @@ class Tracklist extends Component {
         this.props.deleteTrack(track.id);
      }
  }
-  //adds Track from the searchfield
-  addTrack(){
-     this.props.addTrack({id: Math.floor(Math.random() * 1000), title: this.refs.searchText.value});
+  //search Track from the searchfield
+  search(){
+     this.props.search(this.refs.searchText.value);
  }
 
    //rebuild the database
    rebuildDb(){
       this.props.rebuildDb(this.props.application.database);
+   }
+
+   handleKeyPress = (event) => {
+      if(event.key == "Enter"){
+         event.preventDefault(); //consumes the event
+         this.search();
+      }
    }
 
   render(){
@@ -38,9 +45,8 @@ class Tracklist extends Component {
         <ul>
           {this.createTracklist()}
         </ul>
-        <textarea ref="searchText"/>
-        <button onClick={this.addTrack.bind(this)}>Add</button>
-        <button onClick={this.rebuildDb.bind(this)}>Rebuild database</button>
+        <textarea ref="searchText" onKeyPress={this.handleKeyPress}/>
+        <button disabled="true" onClick={this.rebuildDb.bind(this)}>Rebuild database</button>
       </div>
     );
   }

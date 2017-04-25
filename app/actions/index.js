@@ -1,3 +1,4 @@
+import {walk} from "../utils/filewalk.js";
 //Action creator
 /// when database has been started
 export const startDb = () => {
@@ -8,22 +9,19 @@ export const startDb = () => {
 
 export const rebuildDb = () => {
    return function(dispatch){
-      var fs = require("fs");
-      let folder = "E:/Musik/Von Wegen Lisbeth/01-Grande-2016/";
-      let tracks = [];
-      fs.readdir(folder, function(err, files) {
-         if(err){
-            console.error("Could not list the directory.", err);
-            dispatch(rebuildDbRejected("ERROR"));
-            return;
+      var addToDatabase = (files) => {
+         for(let i=0;i<files.length;i++){
+            database.insert({path: files[i]});
          }
+         dispatch(rebuildDbFulfilled());
+      }
 
-         files.forEach(function(file, index) {
-            database.insert({name: file, path: folder + file});
-         })
-      })
+      walk("E:/Musik/", function(err, results) {
+       if (err) dispatch(rebuildDbRejected("ERROR while reading the database directory"));
+        addToDatabase(results);
+      });
 
-      dispatch(rebuildDbFulfilled());
+
    }
 }
 
@@ -48,15 +46,19 @@ export const deleteTrack = (id) => {
   };
 };
 
-export const addTrack = (track) => {
+export const search = (expr) => {
    return function(dispatch){
       let fs = require("fs");
-      database.find({name: track.title+".mp3"}, function(err, docs){
-         if(err) throw dispatch(addTrackRejected("ERROR no entry in database"));
-         if(fs.existsSync("E:/Musik/Von Wegen Lisbeth/01-Grande-2016/" + track.title + ".mp3")){
-            dispatch(addTrackFulfilled(track));
-         }else{
-            dispatch(addTrackRejected("ERROR physical file not found"))
+      database.find({path: new RegExp(expr)}, function(err, docs){
+         if(err) dispatch(addTrackRejected("ERROR no entry in database"));
+         console.log("search <", expr, ">", docs.length, "items");
+
+         if(docs.length>0){
+            if(fs.existsSync(docs[0].path)){ //take only first result TODO
+               dispatch(addTrackFulfilled({id: docs[0]._id, title: docs[0].path}));
+            }else{
+               dispatch(addTrackRejected("ERROR physical file not found: " + docs[0].path))
+            }
          }
       });
 
