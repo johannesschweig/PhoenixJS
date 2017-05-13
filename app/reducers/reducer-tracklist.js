@@ -7,7 +7,19 @@ export function TracklistReducer(state=initialState, action){
          return state.filter(track => track.id !== trackId);
          break;
       case "ADD_TRACK_FULFILLED":
-         return state.concat(action.payload);
+         //check if song already exists in tracklist
+         let existing = false;
+         for(let i = 0;i<state.length;i++){
+            if(state[i].id==action.payload.id){
+               existing = true;
+               break;
+            }
+         }
+         if(!existing){ //if id is not in tracklist -> add
+            return state.concat(action.payload);
+         }else{ //otherwise ignore
+            return state;
+         }
          break;
       case "ADD_TRACK_REJECTED":
          return state;

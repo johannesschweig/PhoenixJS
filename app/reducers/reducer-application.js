@@ -1,16 +1,23 @@
-const initialState = [
-   {databaseState: null}
-];
+const initialState = {
+   databaseState: null,
+   searchResults: []
+};
 
 export function ApplicationReducer(state=initialState, action){
    switch(action.type){
       case "START_DB":
-         return Object.assign({}, state, { databaseState: "running"});
+         return { ...state, databaseState: "running" };
          break;
       case "REBUILD_DB_FULFILLED":
          return state;
          break;
       case "REBUILD_DB_REJECTED":
+         return state;
+         break;
+      case "SEARCH_FULFILLED":
+         return { ...state, searchResults: action.payload };
+         break;
+      case "SEARCH_REJECTED":
          return state;
          break;
     }

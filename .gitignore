@@ -1,11 +1,11 @@
 .vscode/
 alt/
 build/
+dist/
 node_modules/
 scripts/
 test/
 
-*.css
 *.zip
 *.mp3
 *.db

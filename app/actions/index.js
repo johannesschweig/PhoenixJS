@@ -1,4 +1,3 @@
-import {walk} from "../utils/filewalk.js";
 //Action creator
 /// when database has been started
 export const startDb = () => {
@@ -9,19 +8,33 @@ export const startDb = () => {
 
 export const rebuildDb = () => {
    return function(dispatch){
+      //drop old database
+      database.remove({ }, { multi: true }, function (err, numRemoved) {
+        database.loadDatabase(function (err) {    });
+      });
+
+      //function to read tags and add files to database
       var addToDatabase = (files) => {
-         for(let i=0;i<files.length;i++){
-            database.insert({path: files[i]});
+         for(let i=0;i<files.length;i++){ //had to change NodeFileReader in jsmediatags to make this work
+            if(files[i].endsWith(".mp3")){
+               new jsmediatags.Reader(files[i])
+                  .setTagsToRead(["title", "track", "artist", "album", "year"])
+                  .read({
+                     onSuccess: function(tag) {
+                        database.insert({path: files[i], title: tag.tags.title, track: tag.tags.track, artist: tag.tags.artist, album: tag.tags.album, year: tag.tags.year});
+                     },
+                     onError: function(error) {
+                        console.log("ERROR", error.type, error.info, files[i]);
+                     }
+               });
+            }
          }
          dispatch(rebuildDbFulfilled());
       }
-
-      walk("E:/Musik/", function(err, results) {
-       if (err) dispatch(rebuildDbRejected("ERROR while reading the database directory"));
-        addToDatabase(results);
+      require('node-dir').files("E:/Musik/", function(err, files) {
+         if (err) dispatch(rebuildDbRejected("ERROR while reading the database directory"));
+         addToDatabase(files);
       });
-
-
    }
 }
 
@@ -48,20 +61,38 @@ export const deleteTrack = (id) => {
 
 export const search = (expr) => {
    return function(dispatch){
-      let fs = require("fs");
-      database.find({path: new RegExp(expr)}, function(err, docs){
-         if(err) dispatch(addTrackRejected("ERROR no entry in database"));
-         console.log("search <", expr, ">", docs.length, "items");
-
+      database.find({path: new RegExp(expr, "i")}, function(err, docs){
+         if(err) dispatch(searchRejected("ERROR failed to retrieve items from database"));
+         //console.log("search <", expr, ">", docs.length, "items");
          if(docs.length>0){
-            if(fs.existsSync(docs[0].path)){ //take only first result TODO
-               dispatch(addTrackFulfilled({id: docs[0]._id, title: docs[0].path}));
-            }else{
-               dispatch(addTrackRejected("ERROR physical file not found: " + docs[0].path))
-            }
+            dispatch(searchFulfilled(docs));
          }
       });
 
+   }
+}
+export const searchFulfilled = (tracks) => {
+   return{
+      type: "SEARCH_FULFILLED",
+      payload: tracks
+   }
+}
+
+export const searchRejected = (err) => {
+   return{
+      type: "SEARCH_REJECTED",
+      payload: err
+   }
+}
+
+export const addTrack = (track) => {
+   return function(dispatch){
+      //check if file exists
+      if(fs.existsSync(track.path)){
+         dispatch(addTrackFulfilled({id: track._id, title: track.title, path: track.path, artist: track.artist, album: track.album, year: track.year}));
+      }else{
+         dispatch(addTrackRejected("ERROR physical file not found: " + track.path))
+      }
    }
 }
 

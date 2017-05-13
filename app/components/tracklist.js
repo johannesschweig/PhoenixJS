@@ -46,7 +46,7 @@ class Tracklist extends Component {
           {this.createTracklist()}
         </ul>
         <textarea ref="searchText" onKeyPress={this.handleKeyPress}/>
-        <button disabled="true" onClick={this.rebuildDb.bind(this)}>Rebuild database</button>
+        <button onClick={this.rebuildDb.bind(this)}>Rebuild database</button>
       </div>
     );
   }

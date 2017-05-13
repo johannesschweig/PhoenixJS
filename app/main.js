@@ -43,12 +43,12 @@ app.on('ready', async () => {
     await installExtensions();
   }
 
-  mainWindow = new BrowserWindow({ 
-    width: 1000, 
+  mainWindow = new BrowserWindow({
+    width: 1000,
     height: 800,
     minWidth: 640,
     minHeight: 480,
-    show: false 
+    show: false
   });
 
   mainWindow.loadURL(url.format({
@@ -78,7 +78,7 @@ app.on('ready', async () => {
       app.on('activate', () => {
         mainWindow.show();
       });
-      
+
       app.on('before-quit', () => {
         forceQuit = true;
       });
@@ -89,9 +89,10 @@ app.on('ready', async () => {
     }
   });
 
-  if (isDevelopment) {
+   mainWindow.webContents.openDevTools();
+   if (isDevelopment) {
     // auto-open dev tools
-    mainWindow.webContents.openDevTools();
+    //mainWindow.webContents.openDevTools();
 
     // add inspect element on right click menu
     mainWindow.webContents.on('context-menu', (e, props) => {
