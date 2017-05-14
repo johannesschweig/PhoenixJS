@@ -88,11 +88,11 @@ export const searchRejected = (err) => {
 export const addTrack = (track) => {
    return function(dispatch){
       //check if file exists
-      if(fs.existsSync(track.path)){
+      // if(fs.existsSync(track.path)){
          dispatch(addTrackFulfilled({id: track._id, title: track.title, path: track.path, artist: track.artist, album: track.album, year: track.year}));
-      }else{
-         dispatch(addTrackRejected("ERROR physical file not found: " + track.path))
-      }
+      // }else{
+         // dispatch(addTrackRejected("ERROR physical file not found: " + track.path))
+      // }
    }
 }
 
@@ -110,9 +110,16 @@ export const addTrackRejected = (err) => {
    }
 }
 
-export const playTrack = (track) => {
+export const playTrack = (id) => {
    return{
       type: "PLAY_TRACK",
-      payload: track
+      payload: id
+   }
+}
+
+export const moveTrack = (drag, hover) => {
+   return{
+      type: "MOVE_TRACK",
+      payload: {dragIndex: drag, hoverIndex: hover}
    }
 }

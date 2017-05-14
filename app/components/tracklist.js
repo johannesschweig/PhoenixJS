@@ -2,23 +2,37 @@ import React , {Component} from "react";
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
 import * as Actions from "../actions/index.js";
+//DND
+import {DragDropContext} from "react-dnd";
+import ElectronBackend from "react-dnd-electron-backend";
+import Card from './Card';
 
+@DragDropContext(ElectronBackend)
 class Tracklist extends Component {
    //populates <li> with items from state
   createTracklist(){
-    return this.props.tracklist.map((track) => {
+    return this.props.tracklist.map((track, i) => {
       return(
-          <li key={track.id} onClick={(e) => this.clickedTrack(track, e)} onContextMenu={(e) => this.clickedTrack(track, e)}>{track.title}</li>
+          <Card
+          key={track.id}
+          index={i}
+          id={track.id}
+          text={track.title}
+          moveCard={this.moveTrack.bind(this)}
+          onClick={this.clickedTrack.bind(this)}/>
       );
     });
   }
 
+  //move TrackCard
+  moveTrack(dragIndex, hoverIndex){
+     this.props.moveTrack(dragIndex, hoverIndex);
+   }
+
   //plays/deletes Track from tracklist
-  clickedTrack(track, e){
+  clickedTrack(id, e){
      if(e.nativeEvent.which==1){ //left click
-        this.props.playTrack(track);
-     }else if (e.nativeEvent.which==3) { //right click
-        this.props.deleteTrack(track.id);
+        this.props.playTrack(id);
      }
  }
   //search Track from the searchfield
@@ -55,7 +69,7 @@ class Tracklist extends Component {
 function mapStateToProps(state){
   return {
     application: state.application,
-    tracklist: state.tracklist
+    tracklist: state.mediaplayer.tracklist
   };
 }
 
