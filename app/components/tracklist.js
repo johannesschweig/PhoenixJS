@@ -19,10 +19,15 @@ class Tracklist extends Component {
           id={track.id}
           text={track.title}
           moveCard={this.moveTrack.bind(this)}
-          onClick={this.clickedTrack.bind(this)}/>
+          onClick={this.clickedTrack.bind(this)}
+          onDelete={this.deleteTrack.bind(this)}/>
       );
     });
   }
+  //delet TrackCard
+  deleteTrack(id){
+     this.props.deleteTrack(id);
+ }
 
   //move TrackCard
   moveTrack(dragIndex, hoverIndex){
@@ -56,9 +61,9 @@ class Tracklist extends Component {
     return(
       <div>
         <h2>tracklist</h2>
-        <ul>
+        <div>
           {this.createTracklist()}
-        </ul>
+        </div>
         <textarea ref="searchText" onKeyPress={this.handleKeyPress}/>
         <button onClick={this.rebuildDb.bind(this)}>Rebuild database</button>
       </div>

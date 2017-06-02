@@ -4,11 +4,9 @@ import { findDOMNode } from 'react-dom';
 import { DragSource, DropTarget } from 'react-dnd';
 
 const style = {
-  border: '1px dashed gray',
   padding: '0.5rem 1rem',
   marginBottom: '.5rem',
-  backgroundColor: 'white',
-  cursor: 'move',
+  backgroundColor: 'lightgrey',
 };
 
 const cardSource = {
@@ -70,6 +68,11 @@ const cardTarget = {
   isDragging: monitor.isDragging(),
 }))
 export default class Card extends Component {
+   constructor(props){
+      super(props);
+      this.state = {hover: false};
+  }
+
   static propTypes = {
     connectDragSource: PropTypes.func.isRequired,
     connectDropTarget: PropTypes.func.isRequired,
@@ -79,15 +82,37 @@ export default class Card extends Component {
     text: PropTypes.string.isRequired,
     moveCard: PropTypes.func.isRequired,
     onClick: PropTypes.func.isRequired,
+    onDelete: PropTypes.func.isRequired,
   };
 
+   //toggle hover state on
+   hoverOn = () => {
+      this.setState({hover: true})
+   }
+   hoverOff = () => {
+      this.setState({hover: false})
+   }
+
   render() {
-    const { text, isDragging, connectDragSource, connectDropTarget } = this.props;
-    const opacity = isDragging ? 0 : 1;
+   const { text, isDragging, connectDragSource, connectDropTarget } = this.props;
+   const opacity = isDragging ? 0 : 1;
+   var hoverColor;
+   if(this.state.hover){
+      hoverColor = "red";
+   }else{
+      hoverColor = "white";
+   }
+   const delStyle = {
+      float: "right",
+      fontWeight: "bold",
+      color: hoverColor
+   }
+
 
     return connectDragSource(connectDropTarget(
       <div onClick={(e) => this.props.onClick(this.props.id, e)} style={{ ...style, opacity }}>
         {text}
+        <div id="test" style={delStyle} onMouseEnter={this.hoverOn} onMouseLeave={this.hoverOff} onClick={() => this.props.onDelete(this.props.id)}>X</div>
       </div>,
     ));
   }
