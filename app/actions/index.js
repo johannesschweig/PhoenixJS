@@ -52,10 +52,11 @@ export const rebuildDbRejected = (err) => {
 }
 
 
-export const deleteTrack = (id) => {
+export const deleteTrack = (id, index) => {
   return {
     type: "DELETE_TRACK",
-    payload: id
+    id: id,
+    index: index,
   };
 };
 
@@ -121,5 +122,23 @@ export const moveTrack = (drag, hover) => {
    return{
       type: "MOVE_TRACK",
       payload: {dragIndex: drag, hoverIndex: hover}
+   }
+}
+
+export const playPause = () => {
+   return {
+      type: "PLAY_PAUSE"
+   }
+}
+
+export const forward = () => {
+   return {
+      type: "FORWARD"
+   }
+}
+
+export const backward = () => {
+   return {
+      type: "BACKWARD"
    }
 }

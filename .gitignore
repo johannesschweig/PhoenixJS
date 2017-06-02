@@ -1,5 +1,6 @@
 .vscode/
 alt/
+app/img/
 build/
 dist/
 node_modules/

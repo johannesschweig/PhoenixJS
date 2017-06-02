@@ -4,9 +4,9 @@ import { findDOMNode } from 'react-dom';
 import { DragSource, DropTarget } from 'react-dnd';
 
 const style = {
-  padding: '0.5rem 1rem',
-  marginBottom: '.5rem',
-  backgroundColor: 'lightgrey',
+  padding: "0.5rem 1rem",
+  marginBottom: ".5rem",
+  backgroundColor: "lightgrey",
 };
 
 const cardSource = {
@@ -83,6 +83,7 @@ export default class Card extends Component {
     moveCard: PropTypes.func.isRequired,
     onClick: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
+    active: PropTypes.bool.isRequired,
   };
 
    //toggle hover state on
@@ -94,8 +95,11 @@ export default class Card extends Component {
    }
 
   render() {
+   //div style
    const { text, isDragging, connectDragSource, connectDropTarget } = this.props;
    const opacity = isDragging ? 0 : 1;
+   const fontWeight = this.props.active ? "bold" : "normal";
+   //Delete style
    var hoverColor;
    if(this.state.hover){
       hoverColor = "red";
@@ -105,14 +109,15 @@ export default class Card extends Component {
    const delStyle = {
       float: "right",
       fontWeight: "bold",
-      color: hoverColor
+      color: hoverColor,
+      cursor: "pointer"
    }
 
 
     return connectDragSource(connectDropTarget(
-      <div onClick={(e) => this.props.onClick(this.props.id, e)} style={{ ...style, opacity }}>
+      <div onClick={(e) => this.props.onClick(this.props.id, e)} style={{ ...style, opacity, fontWeight }}>
         {text}
-        <div id="test" style={delStyle} onMouseEnter={this.hoverOn} onMouseLeave={this.hoverOff} onClick={() => this.props.onDelete(this.props.id)}>X</div>
+        <div id="test" style={delStyle} onMouseEnter={this.hoverOn} onMouseLeave={this.hoverOff} onClick={() => this.props.onDelete(this.props.id, this.props.index)}>X</div>
       </div>,
     ));
   }

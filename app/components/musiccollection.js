@@ -8,7 +8,7 @@ class Musiccollection extends Component {
   createResults(){
     return this.props.results.map((item) => {
       return(
-          <li key={item._id} onClick={(e) => this.clickedTrack(item, e)}>{item.title}-{item.artist}</li>
+          <li key={item._id} onClick={(e) => this.clickedTrack(item, e)}>{item.title} - {item.artist}</li>
       );
     });
   }

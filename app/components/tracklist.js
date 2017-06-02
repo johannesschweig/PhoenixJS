@@ -12,12 +12,15 @@ class Tracklist extends Component {
    //populates <li> with items from state
   createTracklist(){
     return this.props.tracklist.map((track, i) => {
+      let active = (i == this.props.currentTrack);
+      let t = track.title+" - "+track.artist;
       return(
           <Card
           key={track.id}
           index={i}
+          active={active}
           id={track.id}
-          text={track.title}
+          text={t}
           moveCard={this.moveTrack.bind(this)}
           onClick={this.clickedTrack.bind(this)}
           onDelete={this.deleteTrack.bind(this)}/>
@@ -25,8 +28,8 @@ class Tracklist extends Component {
     });
   }
   //delet TrackCard
-  deleteTrack(id){
-     this.props.deleteTrack(id);
+  deleteTrack(id, index){
+     this.props.deleteTrack(id, index);
  }
 
   //move TrackCard
@@ -60,7 +63,7 @@ class Tracklist extends Component {
   render(){
     return(
       <div>
-        <h2>tracklist</h2>
+        <h2>Tracklist</h2>
         <div>
           {this.createTracklist()}
         </div>
@@ -72,9 +75,10 @@ class Tracklist extends Component {
 }
 //maps state (passed in) as props to components
 function mapStateToProps(state){
-  return {
-    application: state.application,
-    tracklist: state.mediaplayer.tracklist
+   return {
+      application: state.application,
+      tracklist: state.mediaplayer.tracklist,
+      currentTrack: state.mediaplayer.currentTrack,
   };
 }
 
