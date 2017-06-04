@@ -67,6 +67,8 @@ export const search = (expr) => {
          //console.log("search <", expr, ">", docs.length, "items");
          if(docs.length>0){
             dispatch(searchFulfilled(docs));
+         }else{
+            dispatch(searchEmpty());
          }
       });
 
@@ -76,6 +78,12 @@ export const searchFulfilled = (tracks) => {
    return{
       type: "SEARCH_FULFILLED",
       payload: tracks
+   }
+}
+
+export const searchEmpty = () => {
+   return{
+      type: "SEARCH_EMPTY",
    }
 }
 
@@ -140,5 +148,19 @@ export const forward = () => {
 export const backward = () => {
    return {
       type: "BACKWARD"
+   }
+}
+
+export const mediaStatusChange = (status) => {
+   return {
+      type: "MEDIA_STATUS_CHANGE",
+      payload: status,
+   }
+}
+
+export const timeUpdate = (t) => {
+   return {
+      type: "TIME_UPDATE",
+      payload: t,
    }
 }

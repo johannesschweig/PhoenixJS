@@ -1,10 +1,12 @@
 import update from 'immutability-helper';
 import Audiofile from "../components/audiofile.js";
+import {forward} from "../actions/index.js";
 
 const initialState = {
-   audiofile: new Audiofile(),
-   status: null,
-   currentTrack: null,
+   audiofile: null, //audiofile, defined in app.js
+   status: null, //status: playing or paused
+   time: null, //currentTime
+   currentTrack: null, //int of current track in tracklist 0-99
    tracklist: []
 };
 // {album: "testalbum", artist: "testartist", id: "1Hqw0krtsT1wECG0", path: "testpath", title: "testtitle", year: 1921},
@@ -57,14 +59,13 @@ export function MediaplayerReducer(state=initialState, action){
          }
          if(!existing){ //if id is not in tracklist -> add
             if(state.status==null){ //no track loaded -> load this track
-               a = state.audiofile;
-               a.setSource(action.payload.path);
-               return {...state, audiofile: a, status: "paused", currentTrack: 0, tracklist: state.tracklist.concat(action.payload)};
+               audiofile.src = action.payload.path;
+               return {...state, audiofile: audiofile, status: "paused", currentTrack: 0, tracklist: state.tracklist.concat(action.payload)};
             }else{
                return {...state, tracklist: state.tracklist.concat(action.payload)};
             }
          }else{ //otherwise ignore
-            console.log("ERROR id is already in tracklist");
+            console.log("INFO id is already in tracklist");
             return state;
          }
          break;
@@ -80,7 +81,7 @@ export function MediaplayerReducer(state=initialState, action){
          break;
       case "PLAY_PAUSE":
          switch(state.status){
-            case null: console.log("ERROR no track in tracklist");
+            case null: console.log("INFO no track in tracklist");
                return state;
                break;
             case "playing":
@@ -93,34 +94,37 @@ export function MediaplayerReducer(state=initialState, action){
                return{...state, status: "playing"};
                break;
          }
-      break;
+         break;
       case "FORWARD":
-         console.log("f");
          ct = state.currentTrack;
          if(state.tracklist.length>ct+1){ //if there is a next track
-            a = state.audiofile;
-            a.pause();
-            a.setSource(state.tracklist[ct+1].path);
-            a.play();
-            return {...state, audiofile: a, status: "playing", currentTrack: ct+1};
+            audiofile.pause();
+            audiofile.src = state.tracklist[ct+1].path;
+            audiofile.play();
+            return {...state, audiofile: audiofile, status: "playing", currentTrack: ct+1};
          }else{
-            console.log("ERROR no next track to play");
+            console.log("INFO no next track to play");
             return state;
          }
-      break;
+         break;
       case "BACKWARD": // TODO seek song backwards if <10s
          ct = state.currentTrack;
          if(ct>=1){ //if there is a next track
-            a = state.audiofile;
-            a.pause();
-            a.setSource(state.tracklist[ct-1].path);
-            a.play();
-            return {...state, audiofile: a, status: "playing", currentTrack: ct-1};
+            audiofile.pause();
+            audiofile.src = state.tracklist[ct-1].path;
+            audiofile.play();
+            return {...state, audiofile: audiofile, status: "playing", currentTrack: ct-1};
          }else{
-            console.log("ERROR no previous track to play");
+            console.log("INFO no previous track to play");
             return state;
          }
-      break;
+         break;
+      case "MEDIA_STATUS_CHANGE":
+         return {...state, status: action.payload};
+         break;
+      case "TIME_UPDATE":
+         return {...state, time: action.payload};
+         break;
     }
     return state;
 }
