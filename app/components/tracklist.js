@@ -2,12 +2,8 @@ import React , {Component} from "react";
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
 import * as Actions from "../actions/index.js";
-//DND
-import {DragDropContext} from "react-dnd";
-import ElectronBackend from "react-dnd-electron-backend";
-import Card from './Card';
+import Card from "./card.js";
 
-@DragDropContext(ElectronBackend)
 class Tracklist extends Component {
    //populates <li> with items from state
   createTracklist(){
@@ -19,9 +15,8 @@ class Tracklist extends Component {
           key={track.id}
           index={i}
           active={active}
-          id={track.id}
           text={t}
-          moveCard={this.moveTrack.bind(this)}
+          id={track.id}
           onClick={this.clickedTrack.bind(this)}
           onDelete={this.deleteTrack.bind(this)}/>
       );
@@ -60,16 +55,16 @@ class Tracklist extends Component {
       }
    }
 
-  render(){
-    return(
-      <div>
-        <h2>Tracklist</h2>
-        <div>
-          {this.createTracklist()}
-        </div>
-        <textarea ref="searchText" onKeyPress={this.handleKeyPress}/>
-        <button onClick={this.rebuildDb.bind(this)}>Rebuild database</button>
-      </div>
+   render(){
+      return(
+         <div>
+           <h2>tracklist</h2>
+           <div>
+             {this.createTracklist()}
+           </div>
+           <textarea ref="searchText" onKeyPress={this.handleKeyPress}/>
+           <button onClick={this.rebuildDb.bind(this)}>Rebuild database</button>
+         </div>
     );
   }
 }

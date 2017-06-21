@@ -16,6 +16,7 @@ export const rebuildDb = () => {
       //function to read tags and add files to database
       var addToDatabase = (files) => {
          for(let i=0;i<files.length;i++){ //had to change NodeFileReader in jsmediatags to make this work
+            console.log(i);
             if(files[i].endsWith(".mp3")){
                new jsmediatags.Reader(files[i])
                   .setTagsToRead(["title", "track", "artist", "album", "year"])

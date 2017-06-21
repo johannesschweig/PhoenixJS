@@ -5,10 +5,13 @@ import * as Actions from "../actions/index.js";
 
 class Musiccollection extends Component {
    //populates <li> with items from state
-  createResults(){
-    return this.props.results.map((item) => {
+  createResults(style){
+   return this.props.results.map((item) => {
       return(
-          <li key={item._id} onClick={(e) => this.clickedTrack(item, e)}>{item.title} - {item.artist}</li>
+         <tr  key={item._id} onClick={(e) => this.clickedTrack(item, e)}>
+            <td style={style}>{item.title}</td>
+            <td style={style}>{item.artist}</td>
+         </tr>
       );
     });
   }
@@ -18,15 +21,26 @@ class Musiccollection extends Component {
  }
 
   render(){
-    return(
+   const tableStyle = {
+      border: "1px solid #32363f",
+      borderCollapse: "collapse",
+   };
+
+   return(
       <div>
-         <h2>Results</h2>
-         <ul>
-           {this.createResults()}
-         </ul>
+         <h2>results</h2>
+         <table style={tableStyle}>
+            <tbody>
+               <tr>
+                  <th style={tableStyle}>title</th>
+                  <th style={tableStyle}>artist</th>
+               </tr>
+               {this.createResults(tableStyle)}
+            </tbody>
+         </table>
       </div>
-    );
-  }
+      );
+   }
 }
 //maps state (passed in) as props to components
 function mapStateToProps(state){
