@@ -29,10 +29,13 @@ export default class Card extends Component {
    //div style
    const { text } = this.props;
    const fontWeight = this.props.active ? "normal" : "lighter";
+   const color = this.props.active ? "#ff6600" : "#cccccc";
+   const backgroundColor = this.props.active ? "#32363f" : "transparent";
    const style = {
      padding: "0.5rem 1rem",
-     marginBottom: ".5rem",
-     border: "1px solid #32363f",
+     borderBottomWidth: "1px",
+     borderBottomColor: "#32363f",
+     borderBottomStyle: "solid",
    };
    //Delete style
    var hoverColor;
@@ -50,7 +53,7 @@ export default class Card extends Component {
 
 
     return(
-      <div onClick={(e) => this.props.onClick(this.props.id, e)} style={{ ...style, fontWeight }}>
+      <div onClick={(e) => this.props.onClick(this.props.id, e)} style={{ ...style, color, backgroundColor, fontWeight }}>
         {text}
         <div id="test" style={delStyle} onMouseEnter={this.hoverOn} onMouseLeave={this.hoverOff} onClick={() => this.props.onDelete(this.props.id, this.props.index)}>X</div>
       </div>

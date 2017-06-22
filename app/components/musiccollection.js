@@ -8,32 +8,38 @@ class Musiccollection extends Component {
   createResults(style){
    return this.props.results.map((item) => {
       return(
-         <tr  key={item._id} onClick={(e) => this.clickedTrack(item, e)}>
+         <tr  key={item._id} style={{cursor: "pointer"}} onClick={(e) => this.clickedTrack(item, e)}>
+            <td style={style}>{item.track}</td>
             <td style={style}>{item.title}</td>
             <td style={style}>{item.artist}</td>
+            <td style={style}>{item.album}</td>
+            <td style={style}>{item.year}</td>
          </tr>
       );
     });
   }
 
-  clickedTrack(item, e){
-     this.props.addTrack(item);
- }
+   clickedTrack(item, e){
+      this.props.addTrack(item);
+   }
 
   render(){
    const tableStyle = {
       border: "1px solid #32363f",
       borderCollapse: "collapse",
    };
-
+   const fontWeight = "normal";
    return(
       <div>
-         <h2>results</h2>
-         <table style={tableStyle}>
+         <h2 style={{fontWeight: fontWeight}}>results</h2>
+         <table style={{...tableStyle, width: "100%"}}>
             <tbody>
                <tr>
-                  <th style={tableStyle}>title</th>
-                  <th style={tableStyle}>artist</th>
+                  <th style={{...tableStyle, fontWeight}}>track</th>
+                  <th style={{...tableStyle, fontWeight}}>title</th>
+                  <th style={{...tableStyle, fontWeight}}>artist</th>
+                  <th style={{...tableStyle, fontWeight}}>album</th>
+                  <th style={{...tableStyle, fontWeight}}>year</th>
                </tr>
                {this.createResults(tableStyle)}
             </tbody>

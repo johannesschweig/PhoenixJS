@@ -58,8 +58,8 @@ class Tracklist extends Component {
    render(){
       return(
          <div>
-           <h2>tracklist</h2>
-           <div>
+           <h2 style={{fontWeight: "normal"}}>tracklist</h2>
+           <div style={{paddingBottom: "1rem"}}>
              {this.createTracklist()}
            </div>
            <textarea ref="searchText" onKeyPress={this.handleKeyPress}/>

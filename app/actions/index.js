@@ -13,24 +13,36 @@ export const rebuildDb = () => {
         database.loadDatabase(function (err) {    });
       });
 
-      //function to read tags and add files to database
+      //function to read tags in batches and add files to database
       var addToDatabase = (files) => {
-         for(let i=0;i<files.length;i++){ //had to change NodeFileReader in jsmediatags to make this work
-            console.log(i);
-            if(files[i].endsWith(".mp3")){
-               new jsmediatags.Reader(files[i])
-                  .setTagsToRead(["title", "track", "artist", "album", "year"])
-                  .read({
-                     onSuccess: function(tag) {
-                        database.insert({path: files[i], title: tag.tags.title, track: tag.tags.track, artist: tag.tags.artist, album: tag.tags.album, year: tag.tags.year});
-                     },
-                     onError: function(error) {
-                        console.log("ERROR", error.type, error.info, files[i]);
-                     }
-               });
+         var batch = 2500;
+         //read tags for array files from position start to end
+         function readTags(start){
+            let end = (start+batch<files.length) ? (start+batch) : files.length;
+
+            for(let i=start;i<end;i++){
+               if(files[i].endsWith(".mp3")){
+                  new jsmediatags.Reader(files[i])
+                     .setTagsToRead(["title", "track", "artist", "album", "year"])
+                     .read({
+                        onSuccess: function(tag) {
+                           database.insert({path: files[i], title: tag.tags.title, track: tag.tags.track, artist: tag.tags.artist, album: tag.tags.album, year: tag.tags.year});
+                           if(i%2500==0){
+                              readTags(end);
+                           }
+                           if(i==files.length){
+                              dispatch(rebuildDbFulfilled());
+                           }
+                        },
+                        onError: function(error) {
+                           console.log("ERROR", error.type, error.info, files[i]);
+                        }
+                  });
+               }
             }
          }
-         dispatch(rebuildDbFulfilled());
+
+         readTags(0);
       }
       require('node-dir').files("E:/Musik/", function(err, files) {
          if (err) dispatch(rebuildDbRejected("ERROR while reading the database directory"));
@@ -127,12 +139,12 @@ export const playTrack = (id) => {
    }
 }
 
-export const moveTrack = (drag, hover) => {
-   return{
-      type: "MOVE_TRACK",
-      payload: {dragIndex: drag, hoverIndex: hover}
-   }
-}
+// export const moveTrack = (drag, hover) => {
+//    return{
+//       type: "MOVE_TRACK",
+//       payload: {dragIndex: drag, hoverIndex: hover}
+//    }
+// }
 
 export const playPause = () => {
    return {

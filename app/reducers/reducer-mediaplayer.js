@@ -7,11 +7,12 @@ const initialState = {
    status: null, //status: playing or paused
    time: null, //currentTime
    currentTrack: null, //int of current track in tracklist 0-99
-   tracklist: [ {album: "testalbum", artist: "testartist", id: "1Hqw0krtsT1wECG0", path: "testpath", title: "testtitle", year: 1921},
-                  {album: "testalbum2", artist: "testartist2", id: "2Hqw0krtsT1wECG0", path: "testpath2", title: "testtitle2", year: 1922},
-                  {album: "testalbum3", artist: "testartist3", id: "3Hqw0krtsT1wECG0", path: "testpath3", title: "testtitle3", year: 1923},
-                  {album: "testalbum4", artist: "testartist4", id: "4Hqw0krtsT1wECG0", path: "testpath4", title: "testtitle4", year: 1924}]
+   tracklist: []
 };
+// {album: "testalbum", artist: "testartist", id: "1Hqw0krtsT1wECG0", path: "testpath", title: "testtitle", year: 1921},
+//                {album: "testalbum2", artist: "testartist2", id: "2Hqw0krtsT1wECG0", path: "testpath2", title: "testtitle2", year: 1922},
+//                {album: "testalbum3", artist: "testartist3", id: "3Hqw0krtsT1wECG0", path: "testpath3", title: "testtitle3", year: 1923},
+//                {album: "testalbum4", artist: "testartist4", id: "4Hqw0krtsT1wECG0", path: "testpath4", title: "testtitle4", year: 1924}
 
 
 export function MediaplayerReducer(state=initialState, action){
@@ -70,9 +71,9 @@ export function MediaplayerReducer(state=initialState, action){
       case "PLAY_TRACK":
          return state;
          break;
-      case "MOVE_TRACK":
-         return {...state, tracklist: update(state.tracklist, {$splice: [[action.payload.dragIndex, 1],[action.payload,0, state.tracklist[action.payload.dragIndex]]]})};
-         break;
+      // case "MOVE_TRACK":
+      //    return {...state, tracklist: update(state.tracklist, {$splice: [[action.payload.dragIndex, 1],[action.payload,0, state.tracklist[action.payload.dragIndex]]]})};
+      //    break;
       case "PLAY_PAUSE":
          switch(state.status){
             case null: console.log("INFO no track in tracklist");
