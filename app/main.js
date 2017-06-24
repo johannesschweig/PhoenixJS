@@ -48,7 +48,8 @@ app.on('ready', async () => {
     height: 800,
     minWidth: 640,
     minHeight: 480,
-    show: false
+    show: false,
+    icon: path.join(__dirname, "/img/icon.png")
   });
 
   mainWindow.loadURL(url.format({
@@ -89,10 +90,9 @@ app.on('ready', async () => {
     }
   });
 
-   mainWindow.webContents.openDevTools();
    if (isDevelopment) {
     // auto-open dev tools
-    //mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
 
     // add inspect element on right click menu
     mainWindow.webContents.on('context-menu', (e, props) => {

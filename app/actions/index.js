@@ -73,9 +73,11 @@ export const deleteTrack = (id, index) => {
   };
 };
 
+//search the database for the search term
+///results are sorted (artist, album, track) and limited to 50
 export const search = (expr) => {
    return function(dispatch){
-      database.find({path: new RegExp(expr, "i")}, function(err, docs){
+      const onFinish = (err, docs) => {
          if(err) dispatch(searchRejected("ERROR failed to retrieve items from database"));
          //console.log("search <", expr, ">", docs.length, "items");
          if(docs.length>0){
@@ -83,10 +85,24 @@ export const search = (expr) => {
          }else{
             dispatch(searchEmpty());
          }
-      });
-
+      }
+      if(expr.startsWith("\"")){ //literal search
+         let new_expr = expr.replace(/^"|"$/g, ''); //replace double quotes
+         database.find(
+            {$or:[
+                  {title: new RegExp("^" + new_expr.toLowerCase() + "$", "i")},
+                  {track: new RegExp("^" + new_expr.toLowerCase() + "$", "i")},
+                  {artist: new RegExp("^" + new_expr.toLowerCase() + "$", "i")},
+                  {album: new RegExp("^" + new_expr.toLowerCase() + "$", "i")},
+                  {year: new RegExp("^" + new_expr.toLowerCase() + "$", "i")}
+               ]}
+         ).limit(50).sort({artist: 1, album: 1, track: 1}).exec(onFinish);
+      }else{ //normal search
+         database.find({path: new RegExp(expr.toLowerCase(), "i")}).limit(50).sort({artist: 1, album: 1, track: 1}).exec(onFinish);
+      }
    }
 }
+
 export const searchFulfilled = (tracks) => {
    return{
       type: "SEARCH_FULFILLED",
@@ -132,10 +148,16 @@ export const addTrackRejected = (err) => {
    }
 }
 
-export const playTrack = (id) => {
+export const loadTrack = (id) => {
    return{
-      type: "PLAY_TRACK",
+      type: "LOAD_TRACK",
       payload: id
+   }
+}
+//plays the current track
+export const playTrack = () => {
+   return{
+      type: "PLAY_TRACK"
    }
 }
 

@@ -19,7 +19,7 @@ export function ApplicationReducer(state=initialState, action){
          break;
       case "SEARCH_EMPTY":
          console.log("INFO nothing found for search term");
-         return state;
+         return {...state, searchResults: []};
          break;
       case "SEARCH_REJECTED":
          return state;

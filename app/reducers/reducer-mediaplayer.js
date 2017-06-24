@@ -1,5 +1,4 @@
 import update from 'immutability-helper';
-import Audiofile from "../components/audiofile.js";
 import {forward} from "../actions/index.js";
 
 const initialState = {
@@ -69,11 +68,18 @@ export function MediaplayerReducer(state=initialState, action){
          return state;
          break;
       case "PLAY_TRACK":
-         return state;
+         state.audiofile.play();
+         return{...state, status: "playing"};
          break;
       // case "MOVE_TRACK":
       //    return {...state, tracklist: update(state.tracklist, {$splice: [[action.payload.dragIndex, 1],[action.payload,0, state.tracklist[action.payload.dragIndex]]]})};
       //    break;
+      case "LOAD_TRACK":
+         let index = state.tracklist.findIndex(e => e.id === action.payload);
+         audiofile.pause();
+         audiofile.src = state.tracklist[index].path;
+         return {...state, audiofile: audiofile, currentTrack: index};
+         break;
       case "PLAY_PAUSE":
          switch(state.status){
             case null: console.log("INFO no track in tracklist");

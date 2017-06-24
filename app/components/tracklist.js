@@ -9,13 +9,13 @@ class Tracklist extends Component {
   createTracklist(){
     return this.props.tracklist.map((track, i) => {
       let active = (i == this.props.currentTrack);
-      let t = track.title+" - "+track.artist;
       return(
           <Card
           key={track.id}
           index={i}
           active={active}
-          text={t}
+          title={track.title}
+          artist={track.artist}
           id={track.id}
           onClick={this.clickedTrack.bind(this)}
           onDelete={this.deleteTrack.bind(this)}/>
@@ -28,32 +28,17 @@ class Tracklist extends Component {
  }
 
   //move TrackCard
-  moveTrack(dragIndex, hoverIndex){
-     this.props.moveTrack(dragIndex, hoverIndex);
-   }
+  // moveTrack(dragIndex, hoverIndex){
+  //    this.props.moveTrack(dragIndex, hoverIndex);
+  //  }
 
   //plays/deletes Track from tracklist
   clickedTrack(id, e){
-     if(e.nativeEvent.which==1){ //left click
-        this.props.playTrack(id);
+     if(e.nativeEvent.which==1){ //left click + double
+        this.props.loadTrack(id);
+        this.props.playTrack();
      }
  }
-  //search Track from the searchfield
-  search(){
-     this.props.search(this.refs.searchText.value);
- }
-
-   //rebuild the database
-   rebuildDb(){
-      this.props.rebuildDb(this.props.application.database);
-   }
-
-   handleKeyPress = (event) => {
-      if(event.key == "Enter"){
-         event.preventDefault(); //consumes the event
-         this.search();
-      }
-   }
 
    render(){
       return(
@@ -62,8 +47,6 @@ class Tracklist extends Component {
            <div style={{paddingBottom: "1rem"}}>
              {this.createTracklist()}
            </div>
-           <textarea ref="searchText" onKeyPress={this.handleKeyPress}/>
-           <button onClick={this.rebuildDb.bind(this)}>Rebuild database</button>
          </div>
     );
   }
@@ -71,7 +54,6 @@ class Tracklist extends Component {
 //maps state (passed in) as props to components
 function mapStateToProps(state){
    return {
-      application: state.application,
       tracklist: state.mediaplayer.tracklist,
       currentTrack: state.mediaplayer.currentTrack,
   };
