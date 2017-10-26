@@ -13,40 +13,19 @@ export const rebuildDb = () => {
         database.loadDatabase(function (err) {    });
       });
 
-      //function to read tags in batches and add files to database
-      var addToDatabase = (files) => {
-         var batch = 2500;
-         //read tags for array files from position start to end
-         function readTags(start){
-            let end = (start+batch<files.length) ? (start+batch) : files.length;
-
-            for(let i=start;i<end;i++){
-               if(files[i].endsWith(".mp3")){
-                  new jsmediatags.Reader(files[i])
-                     .setTagsToRead(["title", "track", "artist", "album", "year"])
-                     .read({
-                        onSuccess: function(tag) {
-                           database.insert({path: files[i], title: tag.tags.title, track: tag.tags.track, artist: tag.tags.artist, album: tag.tags.album, year: tag.tags.year});
-                           if(i%2500==0){
-                              readTags(end);
-                           }
-                           if(i==files.length){
-                              dispatch(rebuildDbFulfilled());
-                           }
-                        },
-                        onError: function(error) {
-                           console.log("ERROR", error.type, error.info, files[i]);
-                        }
-                  });
-               }
+      require('node-dir').files("/media/music/Musik/", function(err, files) {
+         if (err) dispatch(rebuildDbRejected("ERROR while reading the database directory"));
+         for(let i=0; i<files.length;i++){
+            if(files[i].endsWith(".mp3")){
+               var readableStream = fs.createReadStream(files[i]);
+               var parser =  musicmetadata(readableStream, function (err, metadata) {
+                  if(err) throw err;
+                  database.insert({path: files[i], title: metadata.title, track: metadata.track.no, artist: metadata.albumartist[0], album: metadata.album, year: metadata.year});
+                  readableStream.close();
+               });
             }
          }
-
-         readTags(0);
-      }
-      require('node-dir').files("E:/Musik/", function(err, files) {
-         if (err) dispatch(rebuildDbRejected("ERROR while reading the database directory"));
-         addToDatabase(files);
+         dispatch(rebuildDbFulfilled());
       });
    }
 }
@@ -74,7 +53,7 @@ export const deleteTrack = (id, index) => {
 };
 
 //search the database for the search term
-///results are sorted (artist, album, track) and limited to 50
+///results are sorted (artist, album, track)
 export const search = (expr) => {
    return function(dispatch){
       const onFinish = (err, docs) => {
@@ -96,9 +75,9 @@ export const search = (expr) => {
                   {album: new RegExp("^" + new_expr.toLowerCase() + "$", "i")},
                   {year: new RegExp("^" + new_expr.toLowerCase() + "$", "i")}
                ]}
-         ).limit(50).sort({artist: 1, album: 1, track: 1}).exec(onFinish);
+         ).sort({artist: 1, album: 1, track: 1}).exec(onFinish);
       }else{ //normal search
-         database.find({path: new RegExp(expr.toLowerCase(), "i")}).limit(50).sort({artist: 1, album: 1, track: 1}).exec(onFinish);
+         database.find({path: new RegExp(expr.toLowerCase(), "i")}).sort({artist: 1, album: 1, track: 1}).exec(onFinish);
       }
    }
 }

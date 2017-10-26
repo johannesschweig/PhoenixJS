@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-
+// Card for individual tracks in tracklist
 export default class Card extends Component {
    constructor(props){
       super(props);

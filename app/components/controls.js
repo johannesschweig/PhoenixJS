@@ -11,7 +11,8 @@ const bigStyle = {
    cursor: "pointer",
 }
 const divStyle = {
-   margin: "5px",
+   margin: "5px auto",
+   width: "150px",
 }
 class Controls extends Component {
    backward(){

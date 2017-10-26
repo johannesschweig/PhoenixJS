@@ -43,10 +43,13 @@ class Tracklist extends Component {
    render(){
       return(
          <div>
-           <h2 style={{fontWeight: "normal"}}>tracklist</h2>
-           <div style={{paddingBottom: "1rem"}}>
-             {this.createTracklist()}
-           </div>
+            <h2 style={{fontWeight: "normal", textAlign: "center"}}>tracklist</h2>
+            <div style={{width: "90vh", margin: "0 auto"}}>
+               <img style={{margin: "1rem", display: "inline-block"}} src="./img/cover.png"></img>
+               <div style={{margin: "1rem", height: "300px", width: "40vh", overflow: "auto", display: "inline-block"}}>
+                  {this.createTracklist()}
+               </div>
+            </div>
          </div>
     );
   }

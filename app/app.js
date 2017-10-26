@@ -9,6 +9,7 @@ import App from "./components/app.js";
 import {startDb, forward, mediaStatusChange, timeUpdate} from "./actions/index.js";
 
 //what middlewares should be added after an action is fired
+//thunk allows the delay or conditional dispatch of actions
 const middleware = applyMiddleware(thunk); //createLogger()
 const store = createStore(reducers, middleware);
 
@@ -23,8 +24,8 @@ audiofile.addEventListener("playing", () => store.dispatch(mediaStatusChange("pl
 audiofile.addEventListener("pause", () => store.dispatch(mediaStatusChange("paused")));
 audiofile.addEventListener("timeupdate", () => store.dispatch(timeUpdate(audiofile.currentTime)));
 
-//mediatags
-const jsmediatags = require("jsmediatags");
+//musicmetadata
+const musicmetadata = require("musicmetadata");
 //fs
 const fs = require("fs");
 

@@ -37,7 +37,7 @@ class Musiccollection extends Component {
       }else{
          return(
             <table style={{borderCollapse: "collapse", width: "100%"}}>
-               <tbody>
+               <thead>
                   <tr>
                      <th style={{fontWeight, fontSize}}>title</th>
                      <th style={{fontWeight, fontSize}}>artist</th>
@@ -45,6 +45,8 @@ class Musiccollection extends Component {
                      <th style={{fontWeight, fontSize}}>year</th>
                      <th style={{fontWeight, fontSize}}>track</th>
                   </tr>
+               </thead>
+               <tbody>
                   {this.createRows()}
                </tbody>
             </table>
@@ -74,11 +76,13 @@ class Musiccollection extends Component {
       backgroundColor: "transparent",
       border: "1px solid #32363f",
       color: "inherit",
-      width: "100%",
+      width: "40vh",
+      margin: "0 auto",
       fontFamily: "inherit",
       fontWeight: "inherit",
       fontSize: "inherit",
       outline: "none",
+      display: "block",
    };
    const buttonStyle = {
       backgroundColor: "#cccccc",
@@ -86,13 +90,16 @@ class Musiccollection extends Component {
       border: "none",
       outline: "none",
       cursor: "pointer",
+      float: "right",
    };
    return(
       <div>
          <textarea placeholder="search..."style={textStyle} ref="searchText" onKeyPress={this.search.bind(this)}/>
          <button style={buttonStyle} onClick={this.rebuildDb.bind(this)}>Rebuild database</button>
-         <h2 style={{fontWeight: "normal"}}>results</h2>
+         <h2 style={{fontWeight: "normal", textAlign: "center"}}>results</h2>
+         <div style={{overflowX: "hidden", overflowY: "auto", height: "38vh"}}>
          {this.createTable()}
+        </div>
       </div>
       );
    }
