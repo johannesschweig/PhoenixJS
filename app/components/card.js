@@ -14,6 +14,7 @@ export default class Card extends Component {
   static propTypes = {
     index: PropTypes.number.isRequired,
     id: PropTypes.any.isRequired,
+    path: PropTypes.string.isRequired,
     artist: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
     onClick: PropTypes.func.isRequired,
@@ -64,7 +65,7 @@ export default class Card extends Component {
 
     return(
       <div onMouseEnter={this.hoverOn} onMouseLeave={this.hoverOff} style={style}>
-        <div style={{display: "inline"}} onClick={(e) => this.props.onClick(this.props.id, e)}>{title} - <i>{artist}</i></div>
+        <div style={{display: "inline"}} onClick={(e) => this.props.onClick(this.props.id, this.props.path, e)}>{title} - <i>{artist}</i></div>
         <img src={src} id="test" style={delStyle} onMouseEnter={this.hoverDelOn} onMouseLeave={this.hoverDelOff} onClick={() => this.props.onDelete(this.props.id, this.props.index)}></img>
       </div>
     );

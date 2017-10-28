@@ -20,6 +20,7 @@ class Musiccollection extends Component {
                <td style={style}>{item.album}</td>
                <td style={style}>{item.year}</td>
                <td style={style}>{item.track}</td>
+               <td style={style}>{item.rating}</td>
             </tr>
          );
       });
@@ -44,6 +45,7 @@ class Musiccollection extends Component {
                      <th style={{fontWeight, fontSize}}>album</th>
                      <th style={{fontWeight, fontSize}}>year</th>
                      <th style={{fontWeight, fontSize}}>track</th>
+                     <th style={{fontWeight, fontSize}}>rating</th>
                   </tr>
                </thead>
                <tbody>

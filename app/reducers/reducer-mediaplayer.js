@@ -6,6 +6,7 @@ const initialState = {
    status: null, //status: playing or paused
    time: null, //currentTime
    currentTrack: null, //int of current track in tracklist 0-99
+   cover: null, //cover of current track
    tracklist: []
 };
 // {album: "testalbum", artist: "testartist", id: "1Hqw0krtsT1wECG0", path: "testpath", title: "testtitle", year: 1921},
@@ -74,11 +75,22 @@ export function MediaplayerReducer(state=initialState, action){
       // case "MOVE_TRACK":
       //    return {...state, tracklist: update(state.tracklist, {$splice: [[action.payload.dragIndex, 1],[action.payload,0, state.tracklist[action.payload.dragIndex]]]})};
       //    break;
-      case "LOAD_TRACK":
-         let index = state.tracklist.findIndex(e => e.id === action.payload);
+      case "LOAD_TRACK_FULFILLED":
+         let index = state.tracklist.findIndex(e => e.id === action.id);
          audiofile.pause();
          audiofile.src = state.tracklist[index].path;
-         return {...state, audiofile: audiofile, currentTrack: index};
+         //play track
+         audiofile.play();
+         return {...state, audiofile: audiofile, status: "playing", currentTrack: index, cover: action.img};
+         break;
+      case "LOAD_TRACK_REJECTED":
+         return state;
+         break;
+      case "LOAD_COVER_FULFILLED":
+         return {...state, cover: action.payload};
+         break;
+        case "LOAD_COVER_REJECTED":
+         return state;
          break;
       case "PLAY_PAUSE":
          switch(state.status){

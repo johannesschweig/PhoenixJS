@@ -5,66 +5,80 @@ import * as Actions from "../actions/index.js";
 import Card from "./card.js";
 
 class Tracklist extends Component {
-   //populates <li> with items from state
-  createTracklist(){
-    return this.props.tracklist.map((track, i) => {
-      let active = (i == this.props.currentTrack);
-      return(
-          <Card
-          key={track.id}
-          index={i}
-          active={active}
-          title={track.title}
-          artist={track.artist}
-          id={track.id}
-          onClick={this.clickedTrack.bind(this)}
-          onDelete={this.deleteTrack.bind(this)}/>
-      );
-    });
-  }
-  //delet TrackCard
-  deleteTrack(id, index){
-     this.props.deleteTrack(id, index);
- }
+    //populates <li> with items from state
+    createTracklist(){
+        return this.props.tracklist.map((track, i) => {
+            let active = (i == this.props.currentTrack);
+            return(
+                <Card
+                key={track.id}
+                index={i}
+                active={active}
+                title={track.title}
+                artist={track.artist}
+                id={track.id}
+                path={track.path}
+                onClick={this.clickedTrack.bind(this, track.path)}
+                onDelete={this.deleteTrack.bind(this)}/>
+            );
+        });
+    }
+    //delet TrackCard
+    deleteTrack(id, index){
+        this.props.deleteTrack(id, index);
+    }
+    //converts Uint8Array into base64 coding
+    arrayBufferToBase64( buffer ) {
+        var binary = '';
+        var bytes = new Uint8Array( buffer );
+        var len = bytes.byteLength;
+        for (var i = 0; i < len; i++) {
+            binary += String.fromCharCode( bytes[ i ] );
+        }
+        return window.btoa( binary );
+    }
 
-  //move TrackCard
-  // moveTrack(dragIndex, hoverIndex){
-  //    this.props.moveTrack(dragIndex, hoverIndex);
-  //  }
+    //move TrackCard
+    // moveTrack(dragIndex, hoverIndex){
+    //    this.props.moveTrack(dragIndex, hoverIndex);
+    //  }
 
-  //plays/deletes Track from tracklist
-  clickedTrack(id, e){
-     if(e.nativeEvent.which==1){ //left click + double
-        this.props.loadTrack(id);
-        this.props.playTrack();
-     }
- }
+    //plays/deletes Track from tracklist
+    clickedTrack(path, id, p, e){ //weird order corresponds to passing order with bind(this...)
+        // console.log(path, id, p, e);
+        if(e.nativeEvent.which==1){ //left click + double
+            this.props.loadTrack(id, path);
+            this.props.playTrack();
+        }
+    }
 
-   render(){
-      return(
-         <div>
-            <h2 style={{fontWeight: "normal", textAlign: "center"}}>tracklist</h2>
-            <div style={{width: "90vh", margin: "0 auto"}}>
-               <img style={{margin: "1rem", display: "inline-block"}} src="./img/cover.png"></img>
-               <div style={{margin: "1rem", height: "300px", width: "40vh", overflow: "auto", display: "inline-block"}}>
-                  {this.createTracklist()}
-               </div>
+    render(){
+        let img_path = this.props.cover==null ? "./img/cover.png" : ("data:image/jpg;base64," + this.arrayBufferToBase64(this.props.cover));
+        return(
+            <div>
+                <h2 style={{fontWeight: "normal", textAlign: "center"}}>tracklist</h2>
+                <div style={{width: "90vh", margin: "0 auto"}}>
+                    <img style={{margin: "1rem", height: "300px", display: "inline-block"}} src={img_path}></img>
+                    <div style={{margin: "1rem", height: "300px", width: "40vh", overflow: "auto", display: "inline-block"}}>
+                    {this.createTracklist()}
+                    </div>
+                </div>
             </div>
-         </div>
-    );
-  }
+        );
+    }
 }
 //maps state (passed in) as props to components
 function mapStateToProps(state){
-   return {
-      tracklist: state.mediaplayer.tracklist,
-      currentTrack: state.mediaplayer.currentTrack,
-  };
+    return {
+        tracklist: state.mediaplayer.tracklist,
+        currentTrack: state.mediaplayer.currentTrack,
+        cover: state.mediaplayer.cover,
+    };
 }
 
 //maps actions to props
 function mapDispatchToProps(dispatch){
-  return bindActionCreators(Actions, dispatch);
+    return bindActionCreators(Actions, dispatch);
 }
 
 //Turn dump component into smart container
