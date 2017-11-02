@@ -1,19 +1,19 @@
 {
-  "name": "electron-react-redux-boilerplate",
-  "version": "0.0.0",
-  "description": "electron-react-redux-boilerplate",
+  "name": "PhoenixJS",
+  "version": "0.0.1",
+  "description": "Mediaplayer",
   "main": "init.js",
   "author": {
-    "name": "Jordan Schroter",
+    "name": "Johannes Schweig",
     "email": "email@author.com"
   },
-  "repository": "https://github.com/jschr/electron-react-redux-boilerplate",
+  "repository": "https://github.com/johannesschweig/PhoenixJS",
   "license": "MIT",
   "dependencies": {
     "babel-runtime": "^6.22.0",
     "graceful-fs": "^4.1.11",
     "immutability-helper": "^2.2.0",
-    "musicmetadata": "https://github.com/draeron/musicmetadata/tarball/master", 
+    "musicmetadata": "https://github.com/draeron/musicmetadata/tarball/master",
     "nedb": "^1.8.0",
     "node-dir": "^0.1.16",
     "react": "^15.4.2",

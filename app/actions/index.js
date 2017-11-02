@@ -217,6 +217,13 @@ export const playPause = () => {
    }
 }
 
+export const seek = (t) => {
+    return {
+        type: "SEEK",
+        payload: t
+    }
+}
+
 export const forward = () => {
    return {
       type: "FORWARD"
@@ -240,5 +247,12 @@ export const timeUpdate = (t) => {
    return {
       type: "TIME_UPDATE",
       payload: t,
+   }
+}
+
+//metadata has been loaded from audiofile
+export const loadedMetaData = () => {
+   return {
+      type: "LOADED_META_DATA"
    }
 }

@@ -4,8 +4,7 @@ import Musiccollection from "./musiccollection.js";
 import Controls from "./controls.js";
 
 const fontStyle = {
-   fontFamily: "Open Sans, Open Sans, sans-serif",
-   fontWeight: "lighter",
+   fontFamily: "Roboto,sans-serif",
    color: "#cccccc",
 };
 

@@ -6,7 +6,7 @@ import  {createLogger} from "redux-logger";
 import {applyMiddleware, createStore} from 'redux';
 import reducers from "./reducers/index.js";
 import App from "./components/app.js";
-import {startDb, forward, mediaStatusChange, timeUpdate} from "./actions/index.js";
+import {startDb, forward, mediaStatusChange, timeUpdate, loadedMetaData} from "./actions/index.js";
 
 //what middlewares should be added after an action is fired
 //thunk allows the delay or conditional dispatch of actions
@@ -20,9 +20,11 @@ store.dispatch(startDb());
 //audiofile - ugly but dont know where to put my eventlistener
 var audiofile = new Audio();
 audiofile.addEventListener("ended", () => store.dispatch(forward()), false);
+audiofile.addEventListener("loadedmetadata", () => store.dispatch(loadedMetaData()));
 audiofile.addEventListener("playing", () => store.dispatch(mediaStatusChange("playing")));
 audiofile.addEventListener("pause", () => store.dispatch(mediaStatusChange("paused")));
 audiofile.addEventListener("timeupdate", () => store.dispatch(timeUpdate(audiofile.currentTime)));
+// audiofile.muted = true;
 
 //musicmetadata
 const musicmetadata = require("musicmetadata");

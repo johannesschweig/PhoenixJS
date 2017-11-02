@@ -2,7 +2,7 @@ import React , {Component} from "react";
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
 import * as Actions from "../actions/index.js";
-import Card from "./card.js";
+import Tile from "./tile.js";
 
 class Tracklist extends Component {
     //populates <li> with items from state
@@ -10,7 +10,7 @@ class Tracklist extends Component {
         return this.props.tracklist.map((track, i) => {
             let active = (i == this.props.currentTrack);
             return(
-                <Card
+                <Tile
                 key={track.id}
                 index={i}
                 active={active}
@@ -23,7 +23,7 @@ class Tracklist extends Component {
             );
         });
     }
-    //delet TrackCard
+    //delete tile with track
     deleteTrack(id, index){
         this.props.deleteTrack(id, index);
     }
@@ -38,7 +38,7 @@ class Tracklist extends Component {
         return window.btoa( binary );
     }
 
-    //move TrackCard
+    //move tile with track
     // moveTrack(dragIndex, hoverIndex){
     //    this.props.moveTrack(dragIndex, hoverIndex);
     //  }
@@ -55,12 +55,12 @@ class Tracklist extends Component {
     render(){
         let img_path = this.props.cover==null ? "./img/cover.png" : ("data:image/jpg;base64," + this.arrayBufferToBase64(this.props.cover));
         return(
-            <div>
-                <h2 style={{fontWeight: "normal", textAlign: "center"}}>tracklist</h2>
-                <div style={{width: "90vh", margin: "0 auto"}}>
-                    <img style={{margin: "1rem", height: "300px", display: "inline-block"}} src={img_path}></img>
-                    <div style={{margin: "1rem", height: "300px", width: "40vh", overflow: "auto", display: "inline-block"}}>
-                    {this.createTracklist()}
+            <div style={{width: "90vh", margin: "24px"}}>
+                <img style={{float: "left", height: "300px", width: "300px"}} src={img_path}></img>
+                <div style={{height: "300px", width: "40vh", marginLeft: "300px"}}>
+                    <div style={{fontWeight: "normal", height: "48px", fontSize: "16px", paddingLeft: "16px", lineHeight: "48px", backgroundColor: "#32363f", marginBottom: "4px"}}>Tracklist</div>
+                    <div style={{height: "252px", overflow: "auto"}}>
+                        {this.createTracklist()}
                     </div>
                 </div>
             </div>
