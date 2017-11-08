@@ -9,7 +9,6 @@ const initialState = {
     currentTrack: null, //int of current track in tracklist 0-99
     cover: null, //cover of current track
     tracklist: [//{album: "testalbum", artist: "Billy Talent", id: "1Hqw0krtsT1wECG0", path: "testpath", title: "Broken Mirrors", year: 1921}, {album: "testalbum2", artist: "Billy Talent", id: "2Hqw0krtsT1wECG0", path: "testpath2", title: "Hey ho", year: 1922}, {album: "testalbum3", artist: "Billy Talent", id: "3Hqw0krtsT1wECG0", path: "testpath3", title: "Plumbuses are made", year: 1923}, {album: "testalbum4", artist: "Billy Talent", id: "4Hqw0krtsT1wECG0", path: "testpath4", title: "No time", year: 1924}
-
 ]
 };
 
@@ -94,7 +93,7 @@ export function MediaplayerReducer(state=initialState, action){
             return {...state, cover: action.payload};
             break;
         case "LOAD_COVER_REJECTED":
-            return state;
+            return {...state, cover: null};
             break;
         case "PLAY_PAUSE":
             switch(state.status){

@@ -3,6 +3,7 @@ import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
 import * as Actions from "../actions/index.js";
 import Tile from "./tile.js";
+import {colors, opacity} from "../style.js";
 
 class Tracklist extends Component {
     //populates <li> with items from state
@@ -55,10 +56,10 @@ class Tracklist extends Component {
     render(){
         let img_path = this.props.cover==null ? "./img/cover.png" : ("data:image/jpg;base64," + this.arrayBufferToBase64(this.props.cover));
         return(
-            <div style={{width: "90vh", margin: "24px"}}>
+            <div style={{width: "700px", margin: "24px auto"}}>
                 <img style={{float: "left", height: "300px", width: "300px"}} src={img_path}></img>
-                <div style={{height: "300px", width: "40vh", marginLeft: "300px"}}>
-                    <div style={{fontWeight: "normal", height: "48px", fontSize: "16px", paddingLeft: "16px", lineHeight: "48px", backgroundColor: "#32363f", marginBottom: "4px"}}>Tracklist</div>
+                <div style={{height: "300px", marginLeft: "300px"}}>
+                    <div style={{height: "48px", fontSize: "20px", paddingLeft: "16px", lineHeight: "48px", backgroundColor: colors.primaryLightColor, opacity: opacity.primaryText, marginBottom: "4px"}}>Tracklist</div>
                     <div style={{height: "252px", overflow: "auto"}}>
                         {this.createTracklist()}
                     </div>

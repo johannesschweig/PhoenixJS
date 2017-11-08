@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import {opacity, colors} from "../style.js";
 
 // Tile for individual tracks in tracklist
 export default class Tile extends Component {
@@ -15,7 +16,7 @@ export default class Tile extends Component {
         index: PropTypes.number.isRequired,
         id: PropTypes.any.isRequired,
         path: PropTypes.string.isRequired,
-        artist: PropTypes.string.isRequired,
+        artist: PropTypes.string,
         title: PropTypes.string.isRequired,
         onClick: PropTypes.func.isRequired,
         onDelete: PropTypes.func.isRequired,
@@ -47,8 +48,7 @@ export default class Tile extends Component {
             paddingLeft: "16px",
             fontSize: "13px",
             cursor: "pointer",
-            color: this.props.active ? "#ff6600" : "#cccccc",
-            backgroundColor: this.props.active ? "#32363f" : "transparent",
+            color: this.props.active ? colors.secondaryColor : colors.primaryTextColor,
         };
         //Delete style
         const delStyle = {
@@ -63,8 +63,8 @@ export default class Tile extends Component {
         return(
             <div onMouseEnter={this.hoverOn} onMouseLeave={this.hoverOff} style={style}>
                 <div style={{float: "left", height: "100%"}} onClick={(e) => this.props.onClick(this.props.id, this.props.path, e)}>
-                    <div style={{paddingTop: "16px"}}>{title}</div>
-                    <div>{artist}</div>
+                    <div style={{opacity: opacity.primaryText, paddingTop: "16px"}}>{title}</div>
+                    <div style={{opacity: opacity.secondaryText}}>{artist}</div>
                 </div>
                 <img style={delStyle} src="./img/ic_delete_white_36dp.png" onMouseEnter={this.hoverDelOn} onMouseLeave={this.hoverDelOff} onClick={() => this.props.onDelete(this.props.id, this.props.index)}></img>
                 <div style={{float: "right", height: "1px", width: "100%", backgroundColor: "#32363f"}}></div>

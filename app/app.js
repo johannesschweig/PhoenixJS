@@ -24,7 +24,7 @@ audiofile.addEventListener("loadedmetadata", () => store.dispatch(loadedMetaData
 audiofile.addEventListener("playing", () => store.dispatch(mediaStatusChange("playing")));
 audiofile.addEventListener("pause", () => store.dispatch(mediaStatusChange("paused")));
 audiofile.addEventListener("timeupdate", () => store.dispatch(timeUpdate(audiofile.currentTime)));
-// audiofile.muted = true;
+audiofile.muted = true;
 
 //musicmetadata
 const musicmetadata = require("musicmetadata");

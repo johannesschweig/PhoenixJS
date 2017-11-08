@@ -148,7 +148,7 @@ export const loadCover = (path) => {
             if(metadata.picture.length!=0){
                 dispatch(loadCoverFulfilled(metadata.picture[0].data));
             }else{
-                dispatch(loadTrackRejected());
+                dispatch(loadCoverRejected());
             }
             readableStream.close();
         });
