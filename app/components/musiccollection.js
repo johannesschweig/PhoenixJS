@@ -9,6 +9,7 @@ class Musiccollection extends Component {
         super(props);
         this.state = {
             showSearchField: false,
+            hoverMore: false,
         }
     }
 
@@ -20,6 +21,13 @@ class Musiccollection extends Component {
 
     searchClick = () => {
         this.setState({showSearchField: true});
+    }
+
+    hoverMoreOn = () => {
+        this.setState({hoverMore: true});
+    }
+    hoverMoreOff = () => {
+        this.setState({hoverMore: false});
     }
 
     createRows(){
@@ -153,14 +161,17 @@ class Musiccollection extends Component {
         const imgStyle = {
             float: "right",
             cursor: "pointer",
-            padding: "20px 0",
+            margin: "20px 2px",
         }
 
-        // <button style={buttonStyle} onClick={this.rebuildDb.bind(this)}>Rebuild database</button>
         return(
             <div>
                 <div style={{display: "block", margin: "8px 0", padding: "0 24px", backgroundColor: colors.primaryLightColor, height: "64px"}}>
                     <div style={{float: "left", height: "inherit", lineHeight: "64px", fontSize: "20px"}}>Musiccollection</div>
+                    <div style={{float: "right", position: "relative", display: "inline-block"}} onMouseEnter={this.hoverMoreOn} onMouseLeave={this.hoverMoreOff}>
+                        <img style={{cursor: "pointer", padding: "20px 2px"}} src="./img/ic_more_vert_white_24dp.png"></img>
+                        <div style={{display: this.state.hoverMore ? "block" : "none", cursor: "pointer", position: "absolute", zIndex: "1", right: "0", padding: "8px 16px", top: "64px", backgroundColor: colors.primaryLightColor}} onClick={this.rebuildDb.bind(this)}>Rebuild database</div>
+                    </div>
                     <img onClick={this.searchClick} style={imgStyle} src="./img/ic_search_white_24dp.png"></img>
                     <textarea ref="searchText" onBlur={this.focusOff} placeholder="Search"  onKeyPress={this.search.bind(this)} style={textStyle}/>
                 </div>

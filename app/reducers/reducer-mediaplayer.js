@@ -2,6 +2,7 @@ import update from 'immutability-helper';
 import {forward} from "../actions/index.js";
 
 const initialState = {
+    rootPath: "/mnt/music/Musik/",
     audiofile: null, //audiofile, defined in app.js
     status: null, //status: playing or paused
     time: null, //currentTime
@@ -17,7 +18,7 @@ export function MediaplayerReducer(state=initialState, action){
     let index, id, ct, tl, a, existing;
 
     switch(action.type){
-        case "DELETE_TRACK":
+        case "DELETE_TRACK_FULFILLED":
             index = action.index;
             id = action.id;
             ct = state.currentTrack;
@@ -28,9 +29,9 @@ export function MediaplayerReducer(state=initialState, action){
                 //check if new audiofile exists
                 if(tl.length>1){ //switch to next track
                     if(tl.length-index>1){ //if there is a subsequent track
-                        return {...state, audiofile: new Audio(tl[ct+1].path), status: "paused", currentTrack: ct, tracklist: state.tracklist.filter(track => track.id !== id)};
+                        return {...state, audiofile: new Audio(state.rootPath + tl[ct+1].path), status: "paused", currentTrack: ct, tracklist: state.tracklist.filter(track => track.id !== id)};
                     }else{
-                        return {...state, audiofile: new Audio(tl[ct-1].path), status: "paused", currentTrack: ct-1, tracklist: state.tracklist.filter(track => track.id !== id)};
+                        return {...state, audiofile: new Audio(state.rootPath + tl[ct-1].path), status: "paused", currentTrack: ct-1, tracklist: state.tracklist.filter(track => track.id !== id)};
                     }
                 }else{ //last track in tracklist
                     return {...state, audiofile: null, status: null, currentTrack: null, tracklist: []};
@@ -40,6 +41,9 @@ export function MediaplayerReducer(state=initialState, action){
             }else{ //keep currentTrack stable
                 return {...state, tracklist: state.tracklist.filter(track => track.id !== id)};
             }
+            break;
+        case "DELETE_TRACK_REJECTED":
+            return state;
             break;
         case "ADD_TRACK_FULFILLED":
             //check if song already exists in tracklist
@@ -52,7 +56,7 @@ export function MediaplayerReducer(state=initialState, action){
             }
             if(!existing){ //if id is not in tracklist -> add
                 if(state.status==null){ //no track loaded -> load this track
-                    audiofile.src = action.payload.path;
+                    audiofile.src = state.rootPath + action.payload.path;
 
                     return {...state, audiofile: audiofile, status: "paused", currentTrack: 0, tracklist: state.tracklist.concat(action.payload)};
                 }else{
@@ -81,7 +85,7 @@ export function MediaplayerReducer(state=initialState, action){
         case "LOAD_TRACK_FULFILLED":
             let index = state.tracklist.findIndex(e => e.id === action.id);
             audiofile.pause();
-            audiofile.src = state.tracklist[index].path;
+            audiofile.src = state.rootPath + state.tracklist[index].path;
             //play track
             audiofile.play();
             return {...state, audiofile: audiofile, status: "playing", currentTrack: index, cover: action.img};
@@ -111,25 +115,24 @@ export function MediaplayerReducer(state=initialState, action){
                     break;
             }
             break;
-        case "FORWARD":
+        case "FORWARD_FULFILLED":
             ct = state.currentTrack;
-            if(state.tracklist.length>ct+1){ //if there is a next track
-                audiofile.pause();
-                audiofile.src = state.tracklist[ct+1].path;
-                audiofile.play();
-                return {...state, audiofile: audiofile, status: "playing", currentTrack: ct+1, duration: audiofile.duration};
-            }else{
-                console.error("INFO no next track to play");
-                return state;
-            }
+            audiofile.pause();
+            audiofile.src = state.rootPath + state.tracklist[ct+1].path;
+            audiofile.play();
+            return {...state, audiofile: audiofile, status: "playing", currentTrack: ct+1, duration: audiofile.duration};
             break;
-        case "BACKWARD":
+        case "FORWARD_REJECTED":
+            console.error("INFO no next track to play");
+            return state;
+        case "BACKWARD_FULFILLED":
             ct = state.currentTrack;
-            if(state.time > 10){
+            if(state.time > 10 || ct==0){
                 audiofile.currentTime = 0;
+                return {...state, time: 0};
             }if(ct>=1){ //if there is a previous track
                 audiofile.pause();
-                audiofile.src = state.tracklist[ct-1].path;
+                audiofile.src = state.rootPath + state.tracklist[ct-1].path;
                 audiofile.play();
                 return {...state, audiofile: audiofile, status: "playing", currentTrack: ct-1, duration: audiofile.duration};
             }else{

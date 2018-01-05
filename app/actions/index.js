@@ -1,122 +1,150 @@
 //Action creator
 /// when database has been started
 export const startDb = () => {
-   return {
-      type: "START_DB"
-   }
+    return {
+        type: "START_DB"
+    }
 }
 
 export const rebuildDb = () => {
-   return function(dispatch){
-      //drop old database
-      database.remove({ }, { multi: true }, function (err, numRemoved) {
-        database.loadDatabase(function (err) {    });
-      });
+    return function(dispatch, getState){
+        //drop old database
+        database.remove({ }, { multi: true }, function (err, numRemoved) {
+            database.loadDatabase(function (err) {    });
+        });
+        //root path of music
+        var rootPath = getState().mediaplayer.rootPath;
 
-      require('node-dir').files("/media/music/Musik/", function(err, files) { //Lorde/01-Pure\ Heroine-2013/ // 26115 files
-         if (err) dispatch(rebuildDbRejected("ERROR while reading the database directory"));
-         files.forEach(function(file){
-            if(file.endsWith(".mp3")){
-               var readableStream = fs.createReadStream(file);
-               var parser =  musicmetadata(readableStream, function (err, metadata) {
-                  if(err) throw err;
-                  //console.log(metadata);
-                  // to avoid ratings being undefined
-                  var r = 0;
-                  if(metadata.ratings.length>0){
-                      r = metadata.ratings[0].rating;
-                  }
-                  database.insert({path: file, title: metadata.title, track: metadata.track.no, artist: metadata.albumartist[0], album: metadata.album, year: metadata.year, rating: r});
-                  readableStream.close();
-               });
-            }
-         });
-         dispatch(rebuildDbFulfilled());
-      });
-   }
+        require('node-dir').files(rootPath, function(err, files) {
+            if (err) dispatch(rebuildDbRejected("ERROR while reading the database directory"));
+            files.forEach(function(file){
+                if(file.endsWith(".mp3")){
+                    var readableStream = fs.createReadStream(file);
+                    var parser =  musicmetadata(readableStream, function (err, metadata) {
+                        if(err) throw err;
+                        // to avoid ratings being undefined
+                        var r = 0;
+                        if(metadata.ratings.length>0){
+                            r = metadata.ratings[0].rating;
+                        }
+                        //remove rootPath from filepath
+                        let filePath = file.replace(rootPath, "");
+                        database.insert({path: filePath, title: metadata.title, track: metadata.track.no, artist: metadata.albumartist[0], album: metadata.album, year: metadata.year, rating: r});
+                        readableStream.close();
+                    });
+                }
+            });
+            dispatch(rebuildDbFulfilled());
+        });
+    }
 }
 
 export const rebuildDbFulfilled = () => {
-   return {
-      type: "REBUILD_DB_FULFILLED"
-   }
+    return {
+        type: "REBUILD_DB_FULFILLED"
+    }
 }
 
 export const rebuildDbRejected = (err) => {
-   return {
-      type: "REBUILD_DB_REJECTED",
-      payload: err
-   }
+    return {
+        type: "REBUILD_DB_REJECTED",
+        payload: err
+    }
 }
 
 
 export const deleteTrack = (id, index) => {
-  return {
-    type: "DELETE_TRACK",
-    id: id,
-    index: index,
-  };
-};
+    return function(dispatch, getState){
+        let ct = getState().mediaplayer.currentTrack;
+        let tl = getState().mediaplayer.tracklist;
+
+        if(index==ct){ //active track gets deleted
+            //check if new audiofile exists
+            if(tl.length>1){ //switch to next track
+                if(tl.length-index>1){ //if there is a subsequent track
+                    dispatch(loadCover(tl[ct+1].path));
+                }else{
+                    dispatch(loadCover(tl[ct-1].path));
+                }
+            }else{ //last track in tracklist
+                dispatch(loadCoverRejected());
+            }
+        }
+        dispatch(deleteTrackFulfilled(id, index));
+    };
+}
+export const deleteTrackFulfilled = (id, index) => {
+    return {
+        type: "DELETE_TRACK_FULFILLED",
+        id: id,
+        index: index,
+    };
+}
+export const deleteTrackRejected = () => {
+    return {
+        type: "DELETE_TRACK_REJECTED",
+    }
+}
 
 //search the database for the search term
 ///results are sorted (artist, album, track)
 export const search = (expr) => {
-   return function(dispatch){
-      const onFinish = (err, docs) => {
-         if(err) dispatch(searchRejected("ERROR failed to retrieve items from database"));
-         //console.log("search <", expr, ">", docs.length, "items");
-         if(docs.length>0){
-            dispatch(searchFulfilled(docs));
-         }else{
-            dispatch(searchEmpty());
-         }
-      }
-      if(expr.startsWith("\"")){ //literal search
-         let new_expr = expr.replace(/^"|"$/g, ''); //replace double quotes
-         database.find(
-            {$or:[
-                  {title: new RegExp("^" + new_expr.toLowerCase() + "$", "i")},
-                  {track: new RegExp("^" + new_expr.toLowerCase() + "$", "i")},
-                  {artist: new RegExp("^" + new_expr.toLowerCase() + "$", "i")},
-                  {album: new RegExp("^" + new_expr.toLowerCase() + "$", "i")},
-                  {year: new RegExp("^" + new_expr.toLowerCase() + "$", "i")}
-               ]}
-         ).sort({artist: 1, album: 1, track: 1}).exec(onFinish);
-      }else{ //normal search
-         database.find({path: new RegExp(expr.toLowerCase(), "i")}).sort({artist: 1, album: 1, track: 1}).exec(onFinish);
-      }
-   }
+    return function(dispatch){
+        const onFinish = (err, docs) => {
+            if(err) dispatch(searchRejected("ERROR failed to retrieve items from database"));
+            //console.log("search <", expr, ">", docs.length, "items");
+            if(docs.length>0){
+                dispatch(searchFulfilled(docs));
+            }else{
+                dispatch(searchEmpty());
+            }
+        }
+        if(expr.startsWith("\"")){ //literal search
+            let new_expr = expr.replace(/^"|"$/g, ''); //replace double quotes
+            database.find(
+                {$or:[
+                    {title: new RegExp("^" + new_expr.toLowerCase() + "$", "i")},
+                    {track: new RegExp("^" + new_expr.toLowerCase() + "$", "i")},
+                    {artist: new RegExp("^" + new_expr.toLowerCase() + "$", "i")},
+                    {album: new RegExp("^" + new_expr.toLowerCase() + "$", "i")},
+                    {year: new RegExp("^" + new_expr.toLowerCase() + "$", "i")}
+                ]}
+            ).sort({artist: 1, album: 1, track: 1}).exec(onFinish);
+        }else{ //normal search
+            database.find({path: new RegExp(expr.toLowerCase(), "i")}).sort({artist: 1, album: 1, track: 1}).exec(onFinish);
+        }
+    }
 }
 
 export const searchFulfilled = (tracks) => {
-   return{
-      type: "SEARCH_FULFILLED",
-      payload: tracks
-   }
+    return{
+        type: "SEARCH_FULFILLED",
+        payload: tracks
+    }
 }
 
 export const searchEmpty = () => {
-   return{
-      type: "SEARCH_EMPTY",
-   }
+    return{
+        type: "SEARCH_EMPTY",
+    }
 }
 
 export const searchRejected = (err) => {
-   return{
-      type: "SEARCH_REJECTED",
-      payload: err
-   }
+    return{
+        type: "SEARCH_REJECTED",
+        payload: err
+    }
 }
 //add track to tracklist
 export const addTrack = (track) => {
     return function(dispatch, getState){
         //check if file exists
-        if(fs.existsSync(track.path)){
+        let rootPath = getState().mediaplayer.rootPath;
+        if(fs.existsSync(rootPath + track.path)){
             if(getState().mediaplayer.tracklist.length==0){
                 dispatch(loadCover(track.path));
             }
             dispatch(addTrackFulfilled({id: track._id, title: track.title, path: track.path, artist: track.artist, album: track.album, year: track.year}));
-
         }else{
             dispatch(addTrackRejected("ERROR physical file not found: " + track.path))
         }
@@ -124,25 +152,26 @@ export const addTrack = (track) => {
 }
 
 export const addTrackFulfilled = (track) => {
-   return{
-      type: "ADD_TRACK_FULFILLED",
-      payload: track
-   }
+    return{
+        type: "ADD_TRACK_FULFILLED",
+        payload: track
+    }
 }
 
 export const addTrackRejected = (err) => {
-   return{
-      type: "ADD_TRACK_REJECTED",
-      payload: err
-   }
+    return{
+        type: "ADD_TRACK_REJECTED",
+        payload: err
+    }
 }
 
 //loads coverart
 export const loadCover = (path) => {
-    return function(dispatch){
+    return function(dispatch, getState){
         //do image processing
         //read coverart
-        var readableStream = fs.createReadStream(path);
+        let rootPath = getState().mediaplayer.rootPath;
+        var readableStream = fs.createReadStream(rootPath + path);
         var parser = musicmetadata(readableStream, function (err, metadata) {
             if (err) throw err;
             if(metadata.picture.length!=0){
@@ -181,8 +210,9 @@ export const loadTrack = (id, path) => {
             }
            readableStream.close();
        });
-   }
+    }
 }
+
 //loads the selected track into memory
 export const loadTrackFulfilled = (_id, _img) => {
     return{
@@ -199,9 +229,9 @@ export const loadTrackRejected = () => {
 }
 //plays the current track
 export const playTrack = () => {
-   return{
-      type: "PLAY_TRACK"
-   }
+    return{
+        type: "PLAY_TRACK"
+    }
 }
 
 // export const moveTrack = (drag, hover) => {
@@ -212,9 +242,9 @@ export const playTrack = () => {
 // }
 
 export const playPause = () => {
-   return {
-      type: "PLAY_PAUSE"
-   }
+    return {
+        type: "PLAY_PAUSE"
+    }
 }
 
 export const seek = (t) => {
@@ -225,34 +255,64 @@ export const seek = (t) => {
 }
 
 export const forward = () => {
-   return {
-      type: "FORWARD"
-   }
+    return function(dispatch, getState){
+        if(getState().mediaplayer.tracklist.length>getState().mediaplayer.currentTrack+1){ //if there is a next track
+            dispatch(loadCover(getState().mediaplayer.tracklist[getState().mediaplayer.currentTrack+1].path));
+            dispatch(forwardFulfilled());
+        }
+    }
+}
+
+export const forwardFulfilled = () => {
+    return {
+        type: "FORWARD_FULFILLED",
+    }
+}
+export const forwardRejected = () => {
+    return {
+        type: "FORWARD_REJECTED",
+    }
 }
 
 export const backward = () => {
-   return {
-      type: "BACKWARD"
-   }
+    return function(dispatch, getState){
+        if(getState().mediaplayer.time>10 | getState().mediaplayer.currentTrack==0){
+            dispatch(backwardFulfilled());
+        }else if(getState().mediaplayer.currentTrack>=1){ //if there is a previous track
+            dispatch(loadCover(getState().mediaplayer.tracklist[getState().mediaplayer.currentTrack-1].path));
+            dispatch(backwardFulfilled());
+        }
+    }
+
+}
+export const backwardFulfilled = () => {
+    return {
+        type: "BACKWARD_FULFILLED",
+    }
+}
+export const backwardRejected= () => {
+    return {
+        type: "BACKWARD_REJECTED",
+    }
 }
 
 export const mediaStatusChange = (status) => {
-   return {
-      type: "MEDIA_STATUS_CHANGE",
-      payload: status,
-   }
+    return {
+        type: "MEDIA_STATUS_CHANGE",
+        payload: status,
+     }
 }
 
 export const timeUpdate = (t) => {
-   return {
-      type: "TIME_UPDATE",
-      payload: t,
-   }
+     return {
+        type: "TIME_UPDATE",
+        payload: t,
+    }
 }
 
 //metadata has been loaded from audiofile
 export const loadedMetaData = () => {
-   return {
-      type: "LOADED_META_DATA"
-   }
+    return {
+        type: "LOADED_META_DATA"
+    }
 }
