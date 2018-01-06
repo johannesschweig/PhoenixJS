@@ -17,20 +17,32 @@ const bigIconStyle = {
 const bgProgStyle = {
     backgroundColor: colors.primaryLightColor,
     height: "4px",
+    flexGrow: 1,
     borderRadius: "2px",
+    marginTop: "5px",
+    marginBottom: "5px",
+    cursor: "pointer",
 }
 const fgProgStyle = {
-    marginTop: "-4px",
+    marginTop: "-9px",
     backgroundColor: colors.secondaryColor,
     height: "4px",
     borderRadius: "2px",
+    cursor: "pointer",
 }
 const progContStyle = {
-    height: "4px",
-    borderRadius: "2px",
-    cursor: "pointer",
     margin: "8px 24px 8px 24px",
+    display: "flex",
 }
+const progBarContStyle = {
+    height: "15px",
+    width: "100%",
+}
+// style for time labels
+const timeLabelStyle = {
+    fontSize: "13px",
+    opacity: 0.5,
+};
 
 
 
@@ -51,6 +63,14 @@ class Controls extends Component {
     autoDj(){
         this.props.toggleAutoDj();
     }
+    convertSecondsToCustomFormat(seconds){
+        if(seconds){
+            // return seconds in format m:ss
+            return Math.floor(seconds/60) + ":" + ("0" + Math.floor(seconds%60)).slice(-2);
+        }else{
+            return null;
+        }
+    }
 
     render(){
         let playPauseIcon;
@@ -67,14 +87,21 @@ class Controls extends Component {
            progress = Math.round(this.props.time/this.props.duration*1000)/10;
         }
 
-        //set border
+        // set border
         let b = (progress == 0) ? 0 : 1;
 
+        // determine margin left and right for progressbar (if no time is displayed, the margin between bar and label is not needed)
+        let margL = this.props.time ? "8px" : "0";
+        let margR = this.props.duration ? "8px" : "0";
         return(
             <div>
                 <div style={progContStyle}>
-                    <div ref="bgProg" style={bgProgStyle} onClick={this.seek.bind(this)}></div>
-                    <div style={{...fgProgStyle, ...{width: progress+"%"}}} onClick={this.seek.bind(this)}></div>
+                    <div style={timeLabelStyle}>{this.convertSecondsToCustomFormat(this.props.time)}</div>
+                    <div style={{...progBarContStyle, marginLeft: margL, marginRight: margR}}>
+                        <div ref="bgProg" style={bgProgStyle} onClick={this.seek.bind(this)}></div>
+                        <div style={{...fgProgStyle, ...{width: progress+"%"}}} onClick={this.seek.bind(this)}></div>
+                    </div>
+                    <div style={timeLabelStyle}>{this.convertSecondsToCustomFormat(this.props.duration)}</div>
                 </div>
                 <div style={{height: "48px"}}>
                     <img onClick={this.autoDj.bind(this)} style={{...smallIconStyle, backgroundColor: c, float: "right", marginRight: "24px"}} src="./img/ic_queue_play_next_white_24dp.png"></img>

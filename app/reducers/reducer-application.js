@@ -22,6 +22,7 @@ export function ApplicationReducer(state=initialState, action){
             return {...state, searchResults: []};
             break;
         case "SEARCH_REJECTED":
+            console.log(action.payload);
             return state;
             break;
     }

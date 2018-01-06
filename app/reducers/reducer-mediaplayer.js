@@ -35,7 +35,7 @@ export function MediaplayerReducer(state=initialState, action){
                         return {...state, audiofile: new Audio(state.rootPath + tl[ct-1].path), status: "paused", currentTrack: ct-1, tracklist: state.tracklist.filter(track => track.id !== id)};
                     }
                 }else{ //last track in tracklist
-                    return {...state, audiofile: null, status: null, currentTrack: null, tracklist: []};
+                    return {...state, audiofile: null, status: null, currentTrack: null, time: null, duration: null, tracklist: []};
                 }
             }else if(index<ct){ //decrease currentTrack
                 return {...state, currentTrack: ct-1, tracklist: state.tracklist.filter(track => track.id !== id)};
