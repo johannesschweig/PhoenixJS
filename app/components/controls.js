@@ -5,19 +5,15 @@ import {connect} from "react-redux";
 import * as Actions from "../actions/index.js";
 import {colors} from "../style.js";
 
-const smallStyle = {
+const smallIconStyle = {
     padding: "12px 4px",
     cursor: "pointer",
 }
-const bigStyle = {
+const bigIconStyle = {
     cursor: "pointer",
     padding: "6px 0",
 }
-const divStyle = {
-    margin: "0 auto",
-    width: "150px",
-    height: "48px",
-}
+
 const bgProgStyle = {
     backgroundColor: colors.primaryLightColor,
     height: "4px",
@@ -42,7 +38,6 @@ class Controls extends Component {
     seek(e){
         let obj = ReactDOM.findDOMNode(this);
         this.props.seek(e.nativeEvent.offsetX/(obj.getBoundingClientRect().width - 48));
-        // console.log(e.nativeEvent.offsetX/(obj.getBoundingClientRect().width - 48));
     }
     backward(){
         this.props.backward();
@@ -53,6 +48,9 @@ class Controls extends Component {
     playpause(){
         this.props.playPause();
     }
+    autoDj(){
+        this.props.toggleAutoDj();
+    }
 
     render(){
         let playPauseIcon;
@@ -61,6 +59,8 @@ class Controls extends Component {
         }else{
             playPauseIcon = "./img/ic_play_circle_filled_white_36dp.png";
         }
+        // display autoDJ status
+        let c = this.props.autoDjStatus ? colors.primaryLightColor : "transparent";
         // compute progress in percent and round to integer
         let progress = 0;
         if(this.props.time!=null && this.props.duration!=null){
@@ -76,10 +76,13 @@ class Controls extends Component {
                     <div ref="bgProg" style={bgProgStyle} onClick={this.seek.bind(this)}></div>
                     <div style={{...fgProgStyle, ...{width: progress+"%"}}} onClick={this.seek.bind(this)}></div>
                 </div>
-                <div style={divStyle}>
-                    <img  onClick={this.backward.bind(this)} style={smallStyle} src="./img/ic_skip_previous_white_24dp.png"></img>
-                    <img  onClick={this.playpause.bind(this)} style ={bigStyle} src={playPauseIcon}></img>
-                    <img  onClick={this.forward.bind(this)} style={smallStyle} src="./img/ic_skip_next_white_24dp.png"></img>
+                <div style={{height: "48px"}}>
+                    <img onClick={this.autoDj.bind(this)} style={{...smallIconStyle, backgroundColor: c, float: "right", marginRight: "24px"}} src="./img/ic_queue_play_next_white_24dp.png"></img>
+                    <div style={{margin: "0 auto", width: "150px"}}>
+                        <img onClick={this.backward.bind(this)} style={smallIconStyle} src="./img/ic_skip_previous_white_24dp.png"></img>
+                        <img onClick={this.playpause.bind(this)} style ={bigIconStyle} src={playPauseIcon}></img>
+                        <img onClick={this.forward.bind(this)} style={smallIconStyle} src="./img/ic_skip_next_white_24dp.png"></img>
+                    </div>
                 </div>
             </div>
         );
@@ -91,6 +94,7 @@ function mapStateToProps(state){
         status: state.mediaplayer.status,
         time: state.mediaplayer.time,
         duration: state.mediaplayer.duration,
+        autoDjStatus: state.mediaplayer.autoDj,
     };
 }
 

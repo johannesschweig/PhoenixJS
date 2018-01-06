@@ -96,23 +96,28 @@ export const search = (expr) => {
             if(docs.length>0){
                 dispatch(searchFulfilled(docs));
             }else{
-                dispatch(searchEmpty());
+                dispatch(searchEmpty(expr));
             }
         }
+        let prefix;
+        let suffix;
         if(expr.startsWith("\"")){ //literal search
-            let new_expr = expr.replace(/^"|"$/g, ''); //replace double quotes
-            database.find(
-                {$or:[
-                    {title: new RegExp("^" + new_expr.toLowerCase() + "$", "i")},
-                    {track: new RegExp("^" + new_expr.toLowerCase() + "$", "i")},
-                    {artist: new RegExp("^" + new_expr.toLowerCase() + "$", "i")},
-                    {album: new RegExp("^" + new_expr.toLowerCase() + "$", "i")},
-                    {year: new RegExp("^" + new_expr.toLowerCase() + "$", "i")}
-                ]}
-            ).sort({artist: 1, album: 1, track: 1}).exec(onFinish);
+            prefix = "^";
+            suffix = "$";
+            expr = expr.replace(/^"|"$/g, ''); //replace double quotes
         }else{ //normal search
-            database.find({path: new RegExp(expr.toLowerCase(), "i")}).sort({artist: 1, album: 1, track: 1}).exec(onFinish);
+            prefix = "";
+            suffix = "";
         }
+        database.find(
+            {$or:[
+                {title: new RegExp(prefix + expr.toLowerCase() + suffix, "i")},
+                {track: new RegExp(prefix + expr.toLowerCase() + suffix, "i")},
+                {artist: new RegExp(prefix + expr.toLowerCase() + suffix, "i")},
+                {album: new RegExp(prefix + expr.toLowerCase() + suffix, "i")},
+                {year: new RegExp(prefix + expr.toLowerCase() + suffix, "i")}
+            ]}
+        ).sort({artist: 1, album: 1, track: 1}).exec(onFinish);
     }
 }
 
@@ -123,9 +128,10 @@ export const searchFulfilled = (tracks) => {
     }
 }
 
-export const searchEmpty = () => {
+export const searchEmpty = (term) => {
     return{
         type: "SEARCH_EMPTY",
+        payload: term
     }
 }
 
@@ -198,9 +204,10 @@ export const loadCoverRejected = () => {
 }
 //loads coverart for a to-be played track and arranges to load the track into memory
 export const loadTrack = (id, path) => {
-   return function(dispatch){
+   return function(dispatch, getState){
        //read coverart
-       var readableStream = fs.createReadStream(path);
+       let rootPath = getState().mediaplayer.rootPath;
+       var readableStream = fs.createReadStream(rootPath + path);
        var parser = musicmetadata(readableStream, function (err, metadata) {
            if (err) throw err;
            if(metadata.picture.length!=0){
@@ -247,6 +254,12 @@ export const playPause = () => {
     }
 }
 
+export  const toggleAutoDj = () => {
+    return {
+        type: "TOGGLE_AUTO_DJ"
+    }
+}
+
 export const seek = (t) => {
     return {
         type: "SEEK",
@@ -254,18 +267,47 @@ export const seek = (t) => {
     }
 }
 
+// gets dispatched when the forward button is pressed or the current track has ended
 export const forward = () => {
     return function(dispatch, getState){
-        if(getState().mediaplayer.tracklist.length>getState().mediaplayer.currentTrack+1){ //if there is a next track
+        if(getState().mediaplayer.tracklist.length>getState().mediaplayer.currentTrack+1){ // if there is a next track
             dispatch(loadCover(getState().mediaplayer.tracklist[getState().mediaplayer.currentTrack+1].path));
             dispatch(forwardFulfilled());
+        }else if(getState().mediaplayer.autoDj){ // if autoDJ is enabled
+            // find appropriate track
+            let currentTrack = getState().mediaplayer.tracklist[getState().mediaplayer.currentTrack];
+
+            const onFinish = (err, docs) => {
+                if(err) dispatch(searchRejected("ERROR failed to retrieve items from database"));
+                // delete all tracks currently in tracklist (including the track the search was based on)
+                let ids = getState().mediaplayer.tracklist.map(e => e.id);
+                docs = docs.filter(track => ids.indexOf(track._id) == -1);
+                if(docs.length>0){
+                    dispatch(addTrack(docs[0]));
+                    dispatch(loadCover(getState().mediaplayer.tracklist[getState().mediaplayer.currentTrack+1].path));
+                    dispatch(forwardFulfilled());
+                }else{
+                    dispatch(searchRejected("INFO no results found autodj for " + currentTrack.title));
+                }
+            }
+            if(currentTrack.album && currentTrack.artist && currentTrack.artist != "Various Artists"){
+                database.find(
+                    {$or:[ {album: currentTrack.album}, {artist: currentTrack.artist} ]}
+                ).sort({album: 1, artist: 1, track: 1}).exec(onFinish);
+            }else if(currentTrack.album){
+                database.find({album: currentTrack.album}).sort({album: 1, artist: 1, track: 1}).exec(onFinish);
+            }else if(currentTrack.artist && currentTrack.artist != "Various Artists"){
+                database.find({artist: currentTrack.artist}).sort({album: 1, artist: 1, track: 1}).exec(onFinish);
+            }else{
+                dispatch(searchRejected("WARN no artist and album information present for " + currentTrack.title + ". Search aborted."));
+            }
         }
     }
 }
 
 export const forwardFulfilled = () => {
     return {
-        type: "FORWARD_FULFILLED",
+        type: "FORWARD_FULFILLED"
     }
 }
 export const forwardRejected = () => {

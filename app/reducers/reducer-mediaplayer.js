@@ -5,6 +5,7 @@ const initialState = {
     rootPath: "/mnt/music/Musik/",
     audiofile: null, //audiofile, defined in app.js
     status: null, //status: playing or paused
+    autoDj: true, //status of the autoDJ: enabled or disabled
     time: null, //currentTime
     duration: null,
     currentTrack: null, //int of current track in tracklist 0-99
@@ -111,9 +112,12 @@ export function MediaplayerReducer(state=initialState, action){
                 case "paused":
                     //load current track
                     state.audiofile.play();
-                    return{...state, status: "playing"};
+                    return {...state, status: "playing"};
                     break;
             }
+            break;
+        case "TOGGLE_AUTO_DJ":
+            return {...state, autoDj: !state.autoDj};
             break;
         case "FORWARD_FULFILLED":
             ct = state.currentTrack;
