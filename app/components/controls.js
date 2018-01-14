@@ -49,7 +49,9 @@ const timeLabelStyle = {
 class Controls extends Component {
     seek(e){
         let obj = ReactDOM.findDOMNode(this);
-        this.props.seek(e.nativeEvent.offsetX/(obj.getBoundingClientRect().width - 48));
+        // offsetX: x pos of click on element (0px far left, width px far right)
+        // this.refs.bgProg.clientWidth: width of the element
+        this.props.seek(e.nativeEvent.offsetX/this.refs.bgProg.clientWidth);
     }
     backward(){
         this.props.backward();
