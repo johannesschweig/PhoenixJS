@@ -90,9 +90,14 @@ class Musiccollection extends Component {
         };
 
         if(this.props.application.searchResults.length==0){
-            return(
-                <div style={{fontSize: "13px", opacity: opacity.hintText, margin: "0 24px", height: "50px", lineHeight: "50px"}}>No Results</div>
-            );
+            if(!this.props.application.databaseState){ // database has not started yet or was not found
+                return( <div style={{fontSize: "13px", opacity: opacity.hintText, margin: "0 24px", height: "50px", lineHeight: "50px"}}>No connection to database</div> );
+            }else if(this.props.application.lastSearch){ // nothing was found on search
+                return( <div style={{fontSize: "13px", opacity: opacity.hintText, margin: "0 24px", height: "50px", lineHeight: "50px"}}>No results for "{this.props.application.lastSearch}"</div> );
+            }else{ // no last search, startup
+                return( <div style={{fontSize: "13px", opacity: opacity.hintText, margin: "0 24px", height: "50px", lineHeight: "50px"}}>Start a search to view results</div> );
+            }
+
         }else{
             return(
                 <table style={{borderCollapse: "collapse", width: "100%"}}>
@@ -127,7 +132,14 @@ class Musiccollection extends Component {
 
     //rebuild the database
     rebuildDb(){
-        this.props.rebuildDb(this.props.application.database);
+        this.props.rebuildDb();
+    }
+    // adds a folder to the database
+    addToDb(){
+        const {dialog} = require('electron').remote;
+        let folder = dialog.showOpenDialog({title: "Select folder", properties: ['openFile', 'openDirectory']});
+        // if folder is valid
+        if(folder) this.props.rebuildDb("partial", folder + "/");
     }
 
     render(){
@@ -163,6 +175,19 @@ class Musiccollection extends Component {
             cursor: "pointer",
             margin: "20px 2px",
         }
+        const menuStyle = {
+            display: this.state.hoverMore ? "block" : "none",
+            position: "absolute",
+            zIndex: "1",
+            right: "0",
+            top: "64px"
+        }
+
+        const menuItemStyle = {
+            cursor: "pointer",
+            padding: "8px 16px",
+            backgroundColor: colors.primaryLightColor,
+        }
 
         return(
             <div>
@@ -170,7 +195,10 @@ class Musiccollection extends Component {
                     <div style={{float: "left", height: "inherit", lineHeight: "64px", fontSize: "20px"}}>Musiccollection</div>
                     <div style={{float: "right", position: "relative", display: "inline-block"}} onMouseEnter={this.hoverMoreOn} onMouseLeave={this.hoverMoreOff}>
                         <img style={{cursor: "pointer", padding: "20px 2px"}} src="./img/ic_more_vert_white_24dp.png"></img>
-                        <div style={{display: this.state.hoverMore ? "block" : "none", cursor: "pointer", position: "absolute", zIndex: "1", right: "0", padding: "8px 16px", top: "64px", backgroundColor: colors.primaryLightColor}} onClick={this.rebuildDb.bind(this)}>Rebuild database</div>
+                        <div style={menuStyle}>
+                            <div style={menuItemStyle} onClick={this.rebuildDb.bind(this)}>Rebuild database</div>
+                            <div style={menuItemStyle} onClick={this.addToDb.bind(this)}>Add folder to database</div>
+                        </div>
                     </div>
                     <img onClick={this.searchClick} style={imgStyle} src="./img/ic_search_white_24dp.png"></img>
                     <textarea ref="searchText" onBlur={this.focusOff} placeholder="Search"  onKeyPress={this.search.bind(this)} style={textStyle}/>

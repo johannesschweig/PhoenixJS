@@ -13,10 +13,22 @@ import {startDb, forward, mediaStatusChange, timeUpdate, loadedMetaData} from ".
 const middleware = applyMiddleware(thunk); //createLogger()
 const store = createStore(reducers, middleware);
 
+//fs
+const fs = require("fs");
+
 //database
 const Datastore = require("nedb");
-var database = new Datastore({filename: "musiccollection.db", autoload: true});
-store.dispatch(startDb());
+const databaseFilePath = "musiccollection.db";
+// check if database file exists
+if(!fs.existsSync(databaseFilePath)){
+    console.error("Database file '" + databaseFilePath + "' not found");
+}else{
+    var database = new Datastore({filename: databaseFilePath, autoload: true});
+    store.dispatch(startDb());
+    database.count({}, function(err, count){
+        console.log("INFO database loaded with " + count + " entries");
+    });
+}
 //audiofile - ugly but dont know where to put my eventlistener
 var audiofile = new Audio();
 audiofile.addEventListener("ended", () => store.dispatch(forward()), false);
@@ -28,8 +40,6 @@ audiofile.addEventListener("timeupdate", () => store.dispatch(timeUpdate(audiofi
 
 //musicmetadata
 const musicmetadata = require("musicmetadata");
-//fs
-const fs = require("fs");
 
 //Provider grants access to store to all components
 ReactDOM.render(

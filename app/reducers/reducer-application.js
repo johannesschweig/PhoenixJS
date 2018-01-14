@@ -1,6 +1,7 @@
 const initialState = {
     databaseState: null,
-    searchResults: []
+    searchResults: [],
+    lastSearch: null,
 };
 
 export function ApplicationReducer(state=initialState, action){
@@ -9,17 +10,21 @@ export function ApplicationReducer(state=initialState, action){
             return { ...state, databaseState: "running" };
             break;
         case "REBUILD_DB_FULFILLED":
+            if (action.mode == "full") {
+                console.log("INFO full update done");
+            } else {
+                console.log("INFO added folder " + action.folder + " to the database")
+            }
             return state;
             break;
         case "REBUILD_DB_REJECTED":
             return state;
             break;
         case "SEARCH_FULFILLED":
-            return { ...state, searchResults: action.payload };
+            return { ...state, searchResults: action.tracks, lastSearch: action.term };
             break;
         case "SEARCH_EMPTY":
-            console.error("INFO nothing found for search term: " + action.payload);
-            return {...state, searchResults: []};
+            return {...state, searchResults: [], lastSearch: action.payload};
             break;
         case "SEARCH_REJECTED":
             console.log(action.payload);

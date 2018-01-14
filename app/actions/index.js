@@ -6,16 +6,25 @@ export const startDb = () => {
     }
 }
 
-export const rebuildDb = () => {
+// rebuilds the whole database (mode: full, folder: "") or adds a folder (mode: "partial", folder: "/...")
+export const rebuildDb = (mode, folder) => {
     return function(dispatch, getState){
-        //drop old database
-        database.remove({ }, { multi: true }, function (err, numRemoved) {
-            database.loadDatabase(function (err) {    });
-        });
-        //root path of music
-        var rootPath = getState().mediaplayer.rootPath;
+        // path to rebuild
+        let path;
+        let rootPath = getState().mediaplayer.rootPath;
+        // delete database and make a full rebuild
+        if(mode=="full"){
+            //drop old database
+            database.remove({ }, { multi: true }, function (err, numRemoved) {
+                database.loadDatabase(function (err) {    });
+            });
 
-        require('node-dir').files(rootPath, function(err, files) {
+            //root path of music
+            path = rootPath;
+        }else{ // add folder to database
+            path = folder;
+        }
+        require('node-dir').files(path, function(err, files) {
             if (err) dispatch(rebuildDbRejected("ERROR while reading the database directory"));
             files.forEach(function(file){
                 if(file.endsWith(".mp3")){
@@ -34,14 +43,16 @@ export const rebuildDb = () => {
                     });
                 }
             });
-            dispatch(rebuildDbFulfilled());
+            dispatch(rebuildDbFulfilled(mode, folder));
         });
     }
 }
 
-export const rebuildDbFulfilled = () => {
+export const rebuildDbFulfilled = (mode, folder) => {
     return {
-        type: "REBUILD_DB_FULFILLED"
+        type: "REBUILD_DB_FULFILLED",
+        mode: mode,
+        folder: folder,
     }
 }
 
@@ -51,7 +62,6 @@ export const rebuildDbRejected = (err) => {
         payload: err
     }
 }
-
 
 export const deleteTrack = (id, index) => {
     return function(dispatch, getState){
@@ -92,9 +102,8 @@ export const search = (expr) => {
     return function(dispatch){
         const onFinish = (err, docs) => {
             if(err) dispatch(searchRejected("ERROR failed to retrieve items from database"));
-            //console.log("search <", expr, ">", docs.length, "items");
             if(docs.length>0){
-                dispatch(searchFulfilled(docs));
+                dispatch(searchFulfilled(expr, docs));
             }else{
                 dispatch(searchEmpty(expr));
             }
@@ -121,10 +130,11 @@ export const search = (expr) => {
     }
 }
 
-export const searchFulfilled = (tracks) => {
+export const searchFulfilled = (term, tracks) => {
     return{
         type: "SEARCH_FULFILLED",
-        payload: tracks
+        term: term,
+        tracks: tracks
     }
 }
 
@@ -273,7 +283,7 @@ export const forward = () => {
         if(getState().mediaplayer.tracklist.length>getState().mediaplayer.currentTrack+1){ // if there is a next track
             dispatch(loadCover(getState().mediaplayer.tracklist[getState().mediaplayer.currentTrack+1].path));
             dispatch(forwardFulfilled());
-        }else if(getState().mediaplayer.autoDj){ // if autoDJ is enabled
+        }else if(getState().mediaplayer.autoDj && getState().mediaplayer.currentTrack){ // if autoDJ is enabled and there is at least a track in the tracklist
             // find appropriate track
             let currentTrack = getState().mediaplayer.tracklist[getState().mediaplayer.currentTrack];
 
@@ -283,7 +293,9 @@ export const forward = () => {
                 let ids = getState().mediaplayer.tracklist.map(e => e.id);
                 docs = docs.filter(track => ids.indexOf(track._id) == -1);
                 if(docs.length>0){
-                    dispatch(addTrack(docs[0]));
+                    // choose random track
+                    let t = Math.random() * (docs.length - 1);
+                    dispatch(addTrack(docs[t]));
                     dispatch(loadCover(getState().mediaplayer.tracklist[getState().mediaplayer.currentTrack+1].path));
                     dispatch(forwardFulfilled());
                 }else{
