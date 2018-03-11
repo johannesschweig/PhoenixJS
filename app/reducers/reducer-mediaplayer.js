@@ -1,5 +1,4 @@
 import update from 'immutability-helper';
-import {forward} from "../actions/index.js";
 
 const initialState = {
     rootPath: "/mnt/music/Musik/",
@@ -30,9 +29,11 @@ export function MediaplayerReducer(state=initialState, action){
                 //check if new audiofile exists
                 if(tl.length>1){ //switch to next track
                     if(tl.length-index>1){ //if there is a subsequent track
-                        return {...state, audiofile: new Audio(state.rootPath + tl[ct+1].path), status: "paused", currentTrack: ct, tracklist: state.tracklist.filter(track => track.id !== id)};
-                    }else{
-                        return {...state, audiofile: new Audio(state.rootPath + tl[ct-1].path), status: "paused", currentTrack: ct-1, tracklist: state.tracklist.filter(track => track.id !== id)};
+                        audiofile.src = state.rootPath + tl[ct+1].path;
+                        return {...state, audiofile: audiofile, status: "paused", currentTrack: ct, tracklist: state.tracklist.filter(track => track.id !== id), time: null, duration: audiofile.duration};
+                    }else{ // if there is previous track
+                        audiofile.src = state.rootPath + tl[ct-1].path;
+                        return {...state, audiofile: audiofile, status: "paused", currentTrack: ct-1, tracklist: state.tracklist.filter(track => track.id !== id), time: null, duration: audiofile.duration};
                     }
                 }else{ //last track in tracklist
                     return {...state, audiofile: null, status: null, currentTrack: null, time: null, duration: null, tracklist: []};
@@ -124,7 +125,7 @@ export function MediaplayerReducer(state=initialState, action){
             audiofile.pause();
             audiofile.src = state.rootPath + state.tracklist[ct+1].path;
             audiofile.play();
-            return {...state, audiofile: audiofile, status: "playing", currentTrack: ct+1, duration: audiofile.duration};
+            return {...state, audiofile: audiofile, status: "playing", currentTrack: ct+1, time: null, duration: audiofile.duration};
             break;
         case "FORWARD_REJECTED":
             console.error("INFO no next track to play");
@@ -138,7 +139,7 @@ export function MediaplayerReducer(state=initialState, action){
                 audiofile.pause();
                 audiofile.src = state.rootPath + state.tracklist[ct-1].path;
                 audiofile.play();
-                return {...state, audiofile: audiofile, status: "playing", currentTrack: ct-1, duration: audiofile.duration};
+                return {...state, audiofile: audiofile, status: "playing", currentTrack: ct-1, time: null, duration: audiofile.duration};
             }else{
                 console.error("INFO no previous track to play");
                 return state;

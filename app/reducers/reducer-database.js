@@ -4,7 +4,7 @@ const initialState = {
     lastSearch: null,
 };
 
-export function ApplicationReducer(state=initialState, action){
+export function DatabaseReducer(state=initialState, action){
     switch(action.type){
         case "START_DB":
             return { ...state, databaseState: "running" };

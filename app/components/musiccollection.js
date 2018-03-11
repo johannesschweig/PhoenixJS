@@ -1,7 +1,8 @@
 import React , {Component} from "react";
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
-import * as Actions from "../actions/index.js";
+import {addSelectedTracks, search, rebuildDb, select} from "../actions/actions-database.js";
+import {addTracks} from "../actions/actions-mediaplayer.js";
 import {colors, opacity} from "../style.js";
 
 class Musiccollection extends Component {
@@ -45,7 +46,7 @@ class Musiccollection extends Component {
             height: "48px",
         };
 
-        return this.props.application.searchResults.map((item) => {
+        return this.props.database.searchResults.map((item) => {
             const rowStyle = {
                 cursor: "pointer",
                 backgroundColor: item.selected ? colors.primaryLightColor : "transparent",
@@ -95,11 +96,11 @@ class Musiccollection extends Component {
             textAlign: "left",
         };
 
-        if(this.props.application.searchResults.length==0){
-            if(!this.props.application.databaseState){ // database has not started yet or was not found
+        if(this.props.database.searchResults.length==0){
+            if(!this.props.database.databaseState){ // database has not started yet or was not found
                 return( <div style={{fontSize: "13px", opacity: opacity.hintText, margin: "0 24px", height: "50px", lineHeight: "50px"}}>No connection to database</div> );
-            }else if(this.props.application.lastSearch){ // nothing was found on search
-                return( <div style={{fontSize: "13px", opacity: opacity.hintText, margin: "0 24px", height: "50px", lineHeight: "50px"}}>No results for "{this.props.application.lastSearch}"</div> );
+            }else if(this.props.database.lastSearch){ // nothing was found on search
+                return( <div style={{fontSize: "13px", opacity: opacity.hintText, margin: "0 24px", height: "50px", lineHeight: "50px"}}>No results for "{this.props.database.lastSearch}"</div> );
             }else{ // no last search, startup
                 return( <div style={{fontSize: "13px", opacity: opacity.hintText, margin: "0 24px", height: "50px", lineHeight: "50px"}}>Start a search to view results</div> );
             }
@@ -226,7 +227,7 @@ class Musiccollection extends Component {
                     </div>
                     <img onClick={this.addClick} style={imgStyle} src="./img/ic_playlist_add_white_24dp.png"></img>
                     <img onClick={this.searchClick} style={imgStyle} src="./img/ic_search_white_24dp.png"></img>
-                    <textarea ref="searchText" onBlur={this.focusOff} placeholder="Search"  onKeyPress={this.search.bind(this)} style={textStyle}/>
+                    <textarea ref="searchText" onBlur={this.focusOff} placeholder="Search" onKeyPress={this.search.bind(this)} style={textStyle}/>
                 </div>
                 <div style={{overflowX: "hidden", overflowY: "auto", height: "50vh"}}> {this.createTable()} </div>
             </div>
@@ -236,13 +237,13 @@ class Musiccollection extends Component {
 //maps state (passed in) as props to components
 function mapStateToProps(state){
     return {
-        application: state.application,
+        database: state.database,
     };
 }
 
 //maps actions to props
 function mapDispatchToProps(dispatch){
-    return bindActionCreators(Actions, dispatch);
+    return bindActionCreators({addSelectedTracks, search, rebuildDb, addTracks, select}, dispatch);
 }
 
 //Turn dump component into smart container

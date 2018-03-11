@@ -2,7 +2,7 @@ import React , {Component} from "react";
 var ReactDOM = require('react-dom');
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
-import * as Actions from "../actions/index.js";
+import {seek, backward, forward, toggleAutoDj, playPause} from "../actions/actions-mediaplayer.js";
 import {colors} from "../style.js";
 
 const smallIconStyle = {
@@ -129,7 +129,7 @@ function mapStateToProps(state){
 
 //maps actions to props
 function mapDispatchToProps(dispatch){
-    return bindActionCreators(Actions, dispatch);
+    return bindActionCreators({seek, backward, forward, toggleAutoDj, playPause}, dispatch);
 }
 
 //Turn dump component into smart container

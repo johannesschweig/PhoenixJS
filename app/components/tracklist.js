@@ -1,7 +1,7 @@
 import React , {Component} from "react";
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
-import * as Actions from "../actions/index.js";
+import {deleteTrack, loadTrack, playTrack} from "../actions/actions-mediaplayer.js";
 import Tile from "./tile.js";
 import {colors, opacity} from "../style.js";
 
@@ -39,11 +39,6 @@ class Tracklist extends Component {
         return window.btoa( binary );
     }
 
-    //move tile with track
-    // moveTrack(dragIndex, hoverIndex){
-    //    this.props.moveTrack(dragIndex, hoverIndex);
-    //  }
-
     //plays/deletes Track from tracklist
     clickedTrack(path, id, p, e){ //weird order corresponds to passing order with bind(this...)
         // console.log(path, id, p, e);
@@ -79,7 +74,7 @@ function mapStateToProps(state){
 
 //maps actions to props
 function mapDispatchToProps(dispatch){
-    return bindActionCreators(Actions, dispatch);
+    return bindActionCreators({deleteTrack, loadTrack, playTrack}, dispatch);
 }
 
 //Turn dump component into smart container

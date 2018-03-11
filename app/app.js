@@ -6,7 +6,8 @@ import  {createLogger} from "redux-logger";
 import {applyMiddleware, createStore} from 'redux';
 import reducers from "./reducers/index.js";
 import App from "./components/app.js";
-import {startDb, forward, mediaStatusChange, timeUpdate, loadedMetaData} from "./actions/index.js";
+import {startDb} from "./actions/actions-database.js";
+import {forward, mediaStatusChange, timeUpdate, loadedMetaData} from "./actions/actions-mediaplayer.js";
 
 //what middlewares should be added after an action is fired
 //thunk allows the delay or conditional dispatch of actions
