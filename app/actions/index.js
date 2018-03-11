@@ -108,6 +108,7 @@ export const search = (expr) => {
                 dispatch(searchEmpty(expr));
             }
         }
+
         let prefix;
         let suffix;
         if(expr.startsWith("\"")){ //literal search
@@ -134,7 +135,11 @@ export const searchFulfilled = (term, tracks) => {
     return{
         type: "SEARCH_FULFILLED",
         term: term,
-        tracks: tracks
+        tracks: tracks.map((val, index) => {
+            val.index = index;
+            val.selected = false;
+            return val;
+        })
     }
 }
 
@@ -151,18 +156,29 @@ export const searchRejected = (err) => {
         payload: err
     }
 }
+
+// add selected tracks to tracklist
+export const addSelectedTracks = () => {
+    return function(dispatch, getState) {
+        let tracks = getState().application.searchResults.filter(track => track.selected == true);
+        dispatch(addTracks(tracks));
+    }
+}
+
 //add track to tracklist
-export const addTrack = (track) => {
+export const addTracks = (tracks) => {
     return function(dispatch, getState){
-        //check if file exists
-        let rootPath = getState().mediaplayer.rootPath;
-        if(fs.existsSync(rootPath + track.path)){
-            if(getState().mediaplayer.tracklist.length==0){
-                dispatch(loadCover(track.path));
+        for (let track of tracks) {
+            //check if file exists
+            let rootPath = getState().mediaplayer.rootPath;
+            if(fs.existsSync(rootPath + track.path)){
+                if(getState().mediaplayer.tracklist.length==0){
+                    dispatch(loadCover(track.path));
+                }
+                dispatch(addTrackFulfilled({id: track._id, title: track.title, path: track.path, artist: track.artist, album: track.album, year: track.year}));
+            }else{
+                dispatch(addTrackRejected("ERROR physical file not found: " + track.path))
             }
-            dispatch(addTrackFulfilled({id: track._id, title: track.title, path: track.path, artist: track.artist, album: track.album, year: track.year}));
-        }else{
-            dispatch(addTrackRejected("ERROR physical file not found: " + track.path))
         }
     }
 }
@@ -283,7 +299,7 @@ export const forward = () => {
         if(getState().mediaplayer.tracklist.length>getState().mediaplayer.currentTrack+1){ // if there is a next track
             dispatch(loadCover(getState().mediaplayer.tracklist[getState().mediaplayer.currentTrack+1].path));
             dispatch(forwardFulfilled());
-        }else if(getState().mediaplayer.autoDj && getState().mediaplayer.currentTrack){ // if autoDJ is enabled and there is at least a track in the tracklist
+        }else if(getState().mediaplayer.autoDj && getState().mediaplayer.currentTrack >= 0){ // if autoDJ is enabled and there is at least a track in the tracklist
             // find appropriate track
             let currentTrack = getState().mediaplayer.tracklist[getState().mediaplayer.currentTrack];
 
@@ -294,7 +310,7 @@ export const forward = () => {
                 docs = docs.filter(track => ids.indexOf(track._id) == -1);
                 if(docs.length>0){
                     // choose random track
-                    let t = Math.random() * (docs.length - 1);
+                    let t = Math.floor(Math.random() * docs.length);
                     dispatch(addTrack(docs[t]));
                     dispatch(loadCover(getState().mediaplayer.tracklist[getState().mediaplayer.currentTrack+1].path));
                     dispatch(forwardFulfilled());
@@ -368,5 +384,14 @@ export const timeUpdate = (t) => {
 export const loadedMetaData = () => {
     return {
         type: "LOADED_META_DATA"
+    }
+}
+
+// select entries with indices either additional (add to current selection) or exclusive (delete old selection)
+export const select = (indices, exclusive) => {
+    return {
+        type: "SELECT",
+        indices: indices,
+        exclusive: exclusive,
     }
 }

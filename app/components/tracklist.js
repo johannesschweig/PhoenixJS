@@ -47,7 +47,7 @@ class Tracklist extends Component {
     //plays/deletes Track from tracklist
     clickedTrack(path, id, p, e){ //weird order corresponds to passing order with bind(this...)
         // console.log(path, id, p, e);
-        if(e.nativeEvent.which==1){ //left click + double
+        if(e.nativeEvent.which==1){ //left click
             this.props.loadTrack(id, path);
             this.props.playTrack();
         }

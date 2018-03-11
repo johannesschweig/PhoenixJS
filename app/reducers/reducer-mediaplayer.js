@@ -64,7 +64,7 @@ export function MediaplayerReducer(state=initialState, action){
                     return {...state, tracklist: state.tracklist.concat(action.payload)};
                 }
             }else{ //otherwise ignore
-                console.error("INFO id is already in tracklist");
+                console.log("INFO id is already in tracklist");
                 return state;
             }
             break;

@@ -9,10 +9,12 @@ test/
 
 *.zip
 *.mp3
-*.db
 
 .babelrc
 .eslintignore
 .eslintrc
 electron-builder.yml
 notes.txt
+yarn-error.log
+musiccollection.db
+musiccollection.db~

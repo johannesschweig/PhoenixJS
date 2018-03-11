@@ -10,6 +10,7 @@ class Musiccollection extends Component {
         this.state = {
             showSearchField: false,
             hoverMore: false,
+            lastSelectedEntry: -1, // last selected entry, -1 none
         }
     }
 
@@ -20,7 +21,11 @@ class Musiccollection extends Component {
     }
 
     searchClick = () => {
-        this.setState({showSearchField: true});
+        this.setState({showSearchField: !this.state.showSearchField});
+    }
+
+    addClick = () => {
+        this.props.addSelectedTracks();
     }
 
     hoverMoreOn = () => {
@@ -39,13 +44,14 @@ class Musiccollection extends Component {
             fontSize: "13px",
             height: "48px",
         };
-        const rowStyle = {
-            cursor: "pointer",
-        };
 
         return this.props.application.searchResults.map((item) => {
+            const rowStyle = {
+                cursor: "pointer",
+                backgroundColor: item.selected ? colors.primaryLightColor : "transparent",
+            };
             return(
-                <tr  key={item._id} style={rowStyle} onClick={(e) => this.clickedTrack(item, e)}>
+                <tr  key={item._id} style={rowStyle} onClick={(e) => this.clickedTrack(item, e)} onDoubleClick={(e) => this.doubleClickedTrack(item, e)}>
                 <td style={{...style, paddingLeft: "24px"}}>{item.title}</td>
                 <td style={{...style, paddingRight: "56px"}}>{item.artist}</td>
                 <td style={{...style, paddingRight: "56px"}}>{item.album}</td>
@@ -118,7 +124,25 @@ class Musiccollection extends Component {
     }
 
     clickedTrack = (item, e) => {
-        this.props.addTrack(item);
+        // if shift key is also down (range selection)
+        if (e.shiftKey) {
+            let start = Math.min(this.state.lastSelectedEntry, item.index);
+            let end = Math.max(this.state.lastSelectedEntry, item.index);
+            this.props.select(Array(end - start + 1).fill().map((_, idx) => start + idx), false);
+        } else if (e.ctrlKey) {
+            this.props.select([item.index], false);
+        } else {
+            this.state.lastSelectedEntry = item.index;
+            this.props.select([item.index], true);
+        }
+    }
+
+    addClick = () => {
+        this.props.addSelectedTracks();
+    }
+
+    doubleClickedTrack = (item, e) => {
+        this.props.addTracks([item]);
     }
 
     //search Track from the searchfield
@@ -173,7 +197,7 @@ class Musiccollection extends Component {
         const imgStyle = {
             float: "right",
             cursor: "pointer",
-            margin: "20px 2px",
+            margin: "20px 4px",
         }
         const menuStyle = {
             display: this.state.hoverMore ? "block" : "none",
@@ -200,6 +224,7 @@ class Musiccollection extends Component {
                             <div style={menuItemStyle} onClick={this.addToDb.bind(this)}>Add folder to database</div>
                         </div>
                     </div>
+                    <img onClick={this.addClick} style={imgStyle} src="./img/ic_playlist_add_white_24dp.png"></img>
                     <img onClick={this.searchClick} style={imgStyle} src="./img/ic_search_white_24dp.png"></img>
                     <textarea ref="searchText" onBlur={this.focusOff} placeholder="Search"  onKeyPress={this.search.bind(this)} style={textStyle}/>
                 </div>

@@ -30,6 +30,18 @@ export function ApplicationReducer(state=initialState, action){
             console.log(action.payload);
             return state;
             break;
+        case "SELECT":
+            return {...state, searchResults: state.searchResults.map((obj) => {
+                if (action.indices.includes(obj.index)) {
+                    obj.selected = true;
+                } else {
+                    if (action.exclusive) {
+                        obj.selected = false;
+                    }
+                }
+                return obj;
+            })};
+            break;
     }
     return state;
 }
