@@ -1,7 +1,7 @@
 import React , {Component} from "react";
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
-import {addSelectedTracks, search, rebuildDb, select} from "../actions/actions-database.js";
+import {addSelectedTracks, search, rebuildDb, selectInMusiccollection} from "../actions/actions-database.js";
 import {addTracks} from "../actions/actions-mediaplayer.js";
 import {colors, opacity} from "../style.js";
 
@@ -52,7 +52,7 @@ class Musiccollection extends Component {
                 backgroundColor: item.selected ? colors.primaryLightColor : "transparent",
             };
             return(
-                <tr  key={item._id} style={rowStyle} onClick={(e) => this.clickedTrack(item, e)} onDoubleClick={(e) => this.doubleClickedTrack(item, e)}>
+                <tr  key={item._id} style={rowStyle} onClick={(e) => this.clickedTrack(item.index, e)} onDoubleClick={(e) => this.doubleClickedTrack(item, e)}>
                 <td style={{...style, paddingLeft: "24px"}}>{item.title}</td>
                 <td style={{...style, paddingRight: "56px"}}>{item.artist}</td>
                 <td style={{...style, paddingRight: "56px"}}>{item.album}</td>
@@ -124,17 +124,17 @@ class Musiccollection extends Component {
         }
     }
 
-    clickedTrack = (item, e) => {
+    clickedTrack = (index, e) => {
         // if shift key is also down (range selection)
         if (e.shiftKey) {
-            let start = Math.min(this.state.lastSelectedEntry, item.index);
-            let end = Math.max(this.state.lastSelectedEntry, item.index);
-            this.props.select(Array(end - start + 1).fill().map((_, idx) => start + idx), false);
+            let start = Math.min(this.state.lastSelectedEntry, index);
+            let end = Math.max(this.state.lastSelectedEntry, index);
+            this.props.selectInMusiccollection(Array(end - start + 1).fill().map((_, idx) => start + idx), false);
         } else if (e.ctrlKey) {
-            this.props.select([item.index], false);
+            this.props.selectInMusiccollection([index], false);
         } else {
-            this.state.lastSelectedEntry = item.index;
-            this.props.select([item.index], true);
+            this.state.lastSelectedEntry = index;
+            this.props.selectInMusiccollection([index], true);
         }
     }
 
@@ -157,7 +157,7 @@ class Musiccollection extends Component {
 
     //rebuild the database
     rebuildDb(){
-        this.props.rebuildDb();
+        this.props.rebuildDb("full");
     }
     // adds a folder to the database
     addToDb(){
@@ -243,7 +243,7 @@ function mapStateToProps(state){
 
 //maps actions to props
 function mapDispatchToProps(dispatch){
-    return bindActionCreators({addSelectedTracks, search, rebuildDb, addTracks, select}, dispatch);
+    return bindActionCreators({addSelectedTracks, search, rebuildDb, addTracks, selectInMusiccollection}, dispatch);
 }
 
 //Turn dump component into smart container

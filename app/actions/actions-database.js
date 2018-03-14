@@ -39,7 +39,7 @@ export const rebuildDb = (mode, folder) => {
                         }
                         //remove rootPath from filepath
                         let filePath = file.replace(rootPath, "");
-                        database.insert({path: filePath, title: metadata.title, track: metadata.track.no, artist: metadata.albumartist[0], album: metadata.album, year: metadata.year, rating: r});
+                        database.insert({path: filePath, title: metadata.title, track: metadata.track.no, artist: metadata.albumartist[0], album: metadata.album, year: metadata.year, rating: r, selected: false});
                         readableStream.close();
                     });
                 }
@@ -124,10 +124,10 @@ export const searchRejected = (err) => {
     }
 }
 
-// select entries with indices either additional (add to current selection) or exclusive (delete old selection)
-export const select = (indices, exclusive) => {
+// select entries in musiccollection with indices either additional (add to current selection) or exclusive (delete old selection)
+export const selectInMusiccollection = (indices, exclusive) => {
     return {
-        type: "SELECT",
+        type: "SELECT_IN_MUSICCOLLECTION",
         indices: indices,
         exclusive: exclusive,
     }

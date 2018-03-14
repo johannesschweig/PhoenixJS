@@ -1,7 +1,7 @@
 import update from 'immutability-helper';
 
 const initialState = {
-    rootPath: "/mnt/music/Musik/",
+    rootPath: process.platform === "linux" ? "/mnt/music/Musik/" : "E:/Musik/",
     audiofile: null, //audiofile, defined in app.js
     status: null, //status: playing or paused
     autoDj: true, //status of the autoDJ: enabled or disabled
@@ -59,7 +59,6 @@ export function MediaplayerReducer(state=initialState, action){
             if(!existing){ //if id is not in tracklist -> add
                 if(state.status==null){ //no track loaded -> load this track
                     audiofile.src = state.rootPath + action.payload.path;
-
                     return {...state, audiofile: audiofile, status: "paused", currentTrack: 0, tracklist: state.tracklist.concat(action.payload)};
                 }else{
                     return {...state, tracklist: state.tracklist.concat(action.payload)};
@@ -103,7 +102,7 @@ export function MediaplayerReducer(state=initialState, action){
             break;
         case "PLAY_PAUSE":
             switch(state.status){
-                case null: console.error("INFO no track in tracklist");
+                case null: console.log("INFO no track in tracklist");
                     return state;
                     break;
                 case "playing":
@@ -128,7 +127,7 @@ export function MediaplayerReducer(state=initialState, action){
             return {...state, audiofile: audiofile, status: "playing", currentTrack: ct+1, time: null, duration: audiofile.duration};
             break;
         case "FORWARD_REJECTED":
-            console.error("INFO no next track to play");
+            console.log("INFO no next track to play");
             return state;
         case "BACKWARD_FULFILLED":
             ct = state.currentTrack;
@@ -141,7 +140,7 @@ export function MediaplayerReducer(state=initialState, action){
                 audiofile.play();
                 return {...state, audiofile: audiofile, status: "playing", currentTrack: ct-1, time: null, duration: audiofile.duration};
             }else{
-                console.error("INFO no previous track to play");
+                console.log("INFO no previous track to play");
                 return state;
             }
             break;
@@ -153,6 +152,18 @@ export function MediaplayerReducer(state=initialState, action){
             break;
         case "LOADED_META_DATA":
             return {...state, duration: audiofile.duration};
+            break;
+        case "SELECT_IN_TRACKLIST":
+            return {...state, tracklist: state.tracklist.map((obj, index) => {
+                if (action.indices.includes(index)) {
+                    obj.selected = true;
+                } else {
+                    if (action.exclusive) {
+                        obj.selected = false;
+                    }
+                }
+                return obj;
+            })};
             break;
         }
         return state;

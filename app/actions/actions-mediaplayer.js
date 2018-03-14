@@ -1,23 +1,32 @@
-export const deleteTrack = (id, index) => {
+// delete tracks from the tracklist
+export const deleteSelectedTracks = () => {
     return function(dispatch, getState){
-        let ct = getState().mediaplayer.currentTrack;
+        // iterate over all tracks
         let tl = getState().mediaplayer.tracklist;
+        let ct = getState().mediaplayer.currentTrack;
 
-        if(index==ct){ //active track gets deleted
-            //check if new audiofile exists
-            if(tl.length>1){ //switch to next track
-                if(tl.length-index>1){ //if there is a subsequent track
-                    dispatch(loadCover(tl[ct+1].path));
-                }else{
-                    dispatch(loadCover(tl[ct-1].path));
+        for (let i=0; i<tl.length; i++ ){
+            if(tl[i].selected){
+                let id = tl[i].id;
+
+                if(i==ct){ //active track gets deleted
+                    //check if new audiofile exists
+                    if(tl.length>1){ //switch to next track
+                        if(tl.length-i>1){ //if there is a subsequent track
+                            dispatch(loadCover(tl[ct+1].path));
+                        }else{
+                            dispatch(loadCover(tl[ct-1].path));
+                        }
+                    }else{ //last track in tracklist
+                        dispatch(loadCoverRejected());
+                    }
                 }
-            }else{ //last track in tracklist
-                dispatch(loadCoverRejected());
+                dispatch(deleteTrackFulfilled(id, i));
             }
         }
-        dispatch(deleteTrackFulfilled(id, index));
     };
 }
+
 export const deleteTrackFulfilled = (id, index) => {
     return {
         type: "DELETE_TRACK_FULFILLED",
@@ -25,13 +34,13 @@ export const deleteTrackFulfilled = (id, index) => {
         index: index,
     };
 }
+
+// is never called
 export const deleteTrackRejected = () => {
     return {
         type: "DELETE_TRACK_REJECTED",
     }
 }
-
-
 
 //add track to tracklist
 export const addTracks = (tracks) => {
@@ -43,7 +52,7 @@ export const addTracks = (tracks) => {
                 if(getState().mediaplayer.tracklist.length==0){
                     dispatch(loadCover(track.path));
                 }
-                dispatch(addTrackFulfilled({id: track._id, title: track.title, path: track.path, artist: track.artist, album: track.album, year: track.year}));
+                dispatch(addTrackFulfilled({id: track._id, title: track.title, path: track.path, artist: track.artist, album: track.album, year: track.year, selected: false}));
             }else{
                 dispatch(addTrackRejected("ERROR physical file not found: " + track.path))
             }
@@ -246,5 +255,14 @@ export const timeUpdate = (t) => {
 export const loadedMetaData = () => {
     return {
         type: "LOADED_META_DATA"
+    }
+}
+
+// select entries in tracklist with indices either additional (add to current selection) or exclusive (delete old selection)
+export const selectInTracklist = (indices, exclusive) => {
+    return {
+        type: "SELECT_IN_TRACKLIST",
+        indices: indices,
+        exclusive: exclusive,
     }
 }

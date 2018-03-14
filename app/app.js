@@ -19,7 +19,7 @@ const fs = require("fs");
 
 //database
 const Datastore = require("nedb");
-const databaseFilePath = "musiccollection.db";
+const databaseFilePath = "./musiccollection.db";
 // check if database file exists
 if(!fs.existsSync(databaseFilePath)){
     console.error("Database file '" + databaseFilePath + "' not found");
@@ -41,6 +41,9 @@ audiofile.addEventListener("timeupdate", () => store.dispatch(timeUpdate(audiofi
 
 //musicmetadata
 const musicmetadata = require("musicmetadata");
+
+// version
+console.log("INFO loaded version 15.04.2018");
 
 //Provider grants access to store to all components
 ReactDOM.render(

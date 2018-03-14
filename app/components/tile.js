@@ -6,10 +6,6 @@ import {opacity, colors} from "../style.js";
 export default class Tile extends Component {
     constructor(props){
         super(props);
-        this.state = {
-            hover: false, // if whole tile is hovered
-            delHover: false, // if delete button is hovered
-        };
     }
 
     static propTypes = {
@@ -19,24 +15,10 @@ export default class Tile extends Component {
         artist: PropTypes.string,
         title: PropTypes.string.isRequired,
         onClick: PropTypes.func.isRequired,
-        onDelete: PropTypes.func.isRequired,
+        onDoubleClick: PropTypes.func.isRequired,
         active: PropTypes.bool.isRequired,
+        selected: PropTypes.bool.isRequired,
     };
-
-    //toggle delete hover state on
-    hoverDelOn = () => {
-        this.setState({delHover: true})
-    }
-    hoverDelOff = () => {
-        this.setState({delHover: false})
-    }
-
-    hoverOn = () => {
-        this.setState({hover: true})
-    }
-    hoverOff = () => {
-        this.setState({hover: false})
-    }
 
     render() {
         //div style
@@ -49,28 +31,19 @@ export default class Tile extends Component {
             fontSize: "13px",
             cursor: "pointer",
             color: this.props.active ? colors.secondaryColor : colors.primaryTextColor,
+            backgroundColor: this.props.selected ? colors.primaryLightColor : "transparent",
         };
-        //Delete style
-        const delStyle = {
-            display: this.state.hover ? "block" : "none",
-            float: "right",
-            height: "24px",
-            marginTop: "18px",
-            marginRight: "16px",
-        }
+
 
 
         return(
-            <div onMouseEnter={this.hoverOn} onMouseLeave={this.hoverOff} style={style}>
-                <div style={{float: "left", height: "100%"}} onClick={(e) => this.props.onClick(this.props.id, this.props.path, e)}>
+            <div style={style} onClick ={(e) => this.props.onClick(this.props.index, e)} onDoubleClick={(e) => this.props.onDoubleClick(this.props.id, this.props.path, e)}>
+                <div style={{float: "left", height: "100%"}} >
                     <div style={{opacity: opacity.primaryText, paddingTop: "16px"}}>{title}</div>
                     <div style={{opacity: opacity.secondaryText}}>{artist}</div>
                 </div>
-                <img style={delStyle} src="./img/ic_delete_white_36dp.png" onMouseEnter={this.hoverDelOn} onMouseLeave={this.hoverDelOff} onClick={() => this.props.onDelete(this.props.id, this.props.index)}></img>
                 <div style={{float: "right", height: "1px", width: "100%", backgroundColor: "#32363f"}}></div>
             </div>
         );
     }
 }
-
-                // <img src={src} id="test" style={delStyle} onMouseEnter={this.hoverDelOn} onMouseLeave={this.hoverDelOff} onClick={() => this.props.onDelete(this.props.id, this.props.index)}></img>

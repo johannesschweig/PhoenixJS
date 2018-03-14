@@ -21,7 +21,12 @@ export function DatabaseReducer(state=initialState, action){
             return state;
             break;
         case "SEARCH_FULFILLED":
-            return { ...state, searchResults: action.tracks, lastSearch: action.term };
+            // add the "selected" attribute to the array
+            let sr = action.tracks.map((obj) => {
+                obj.selected = false;
+                return obj;
+            });
+            return { ...state, searchResults: sr, lastSearch: action.term };
             break;
         case "SEARCH_EMPTY":
             return {...state, searchResults: [], lastSearch: action.payload};
@@ -30,7 +35,7 @@ export function DatabaseReducer(state=initialState, action){
             console.log(action.payload);
             return state;
             break;
-        case "SELECT":
+        case "SELECT_IN_MUSICCOLLECTION":
             return {...state, searchResults: state.searchResults.map((obj) => {
                 if (action.indices.includes(obj.index)) {
                     obj.selected = true;

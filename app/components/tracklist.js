@@ -1,11 +1,18 @@
 import React , {Component} from "react";
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
-import {deleteTrack, loadTrack, playTrack} from "../actions/actions-mediaplayer.js";
+import {deleteSelectedTracks, loadTrack, playTrack, selectInTracklist} from "../actions/actions-mediaplayer.js";
 import Tile from "./tile.js";
 import {colors, opacity} from "../style.js";
 
 class Tracklist extends Component {
+
+    constructor(props){
+        super(props);
+        this.state = {
+            lastSelectedEntry: -1,
+        };
+    }
     //populates <li> with items from state
     createTracklist(){
         return this.props.tracklist.map((track, i) => {
@@ -17,16 +24,19 @@ class Tracklist extends Component {
                 active={active}
                 title={track.title}
                 artist={track.artist}
+                selected={track.selected}
                 id={track.id}
                 path={track.path}
-                onClick={this.clickedTrack.bind(this, track.path)}
-                onDelete={this.deleteTrack.bind(this)}/>
+                onClick={this.clickedTrack.bind(this, i)}
+                onDoubleClick={this.doubleClickedTrack.bind(this, track.path)}/>
             );
         });
     }
-    //delete tile with track
-    deleteTrack(id, index){
-        this.props.deleteTrack(id, index);
+
+
+    //delete selected tracks from tracklist
+    deleteSelectedTracks(){
+        this.props.deleteSelectedTracks();
     }
     //converts Uint8Array into base64 coding
     arrayBufferToBase64( buffer ) {
@@ -39,9 +49,23 @@ class Tracklist extends Component {
         return window.btoa( binary );
     }
 
-    //plays/deletes Track from tracklist
-    clickedTrack(path, id, p, e){ //weird order corresponds to passing order with bind(this...)
-        // console.log(path, id, p, e);
+    // selects track
+    clickedTrack(index, i, e){
+        // if shift key is also down (range selection)
+        if (e.shiftKey) {
+            let start = Math.min(this.state.lastSelectedEntry, index);
+            let end = Math.max(this.state.lastSelectedEntry, index);
+            this.props.selectInTracklist(Array(end - start + 1).fill().map((_, idx) => start + idx), false);
+        } else if (e.ctrlKey) {
+            this.props.selectInTracklist([index], false);
+        } else {
+            this.state.lastSelectedEntry = index;
+            this.props.selectInTracklist([index], true);
+        }
+    }
+
+    //plays Track from tracklist
+    doubleClickedTrack(path, id, p, e){ //weird order corresponds to passing order with bind(this...)
         if(e.nativeEvent.which==1){ //left click
             this.props.loadTrack(id, path);
             this.props.playTrack();
@@ -50,11 +74,15 @@ class Tracklist extends Component {
 
     render(){
         let img_path = this.props.cover==null ? "./img/cover.png" : ("data:image/jpg;base64," + this.arrayBufferToBase64(this.props.cover));
+
         return(
             <div style={{width: "700px", margin: "24px auto"}}>
                 <img style={{float: "left", height: "300px", width: "300px"}} src={img_path}></img>
                 <div style={{height: "300px", marginLeft: "300px"}}>
-                    <div style={{height: "48px", fontSize: "20px", paddingLeft: "16px", lineHeight: "48px", backgroundColor: colors.primaryLightColor, opacity: opacity.primaryText, marginBottom: "4px"}}>Tracklist</div>
+                    <div style={{height: "48px", fontSize: "20px", paddingLeft: "16px", lineHeight: "48px", backgroundColor: colors.primaryLightColor, opacity: opacity.primaryText, marginBottom: "4px"}}>
+                        <div style={{float: "left"}}>Tracklist</div>
+                        <img style={{float: "right", padding: "10px 8px", cursor: "pointer"}} onClick={this.deleteSelectedTracks.bind(this)} src="./img/ic_delete_white_24dp.png"></img>
+                    </div>
                     <div style={{height: "252px", overflow: "auto"}}>
                         {this.createTracklist()}
                     </div>
@@ -74,7 +102,7 @@ function mapStateToProps(state){
 
 //maps actions to props
 function mapDispatchToProps(dispatch){
-    return bindActionCreators({deleteTrack, loadTrack, playTrack}, dispatch);
+    return bindActionCreators({deleteSelectedTracks, loadTrack, playTrack, selectInTracklist}, dispatch);
 }
 
 //Turn dump component into smart container
