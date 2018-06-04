@@ -24,6 +24,7 @@ class Tracklist extends Component {
                 active={active}
                 title={track.title}
                 artist={track.artist}
+                albumartist={track.albumartist}
                 selected={track.selected}
                 id={track.id}
                 path={track.path}

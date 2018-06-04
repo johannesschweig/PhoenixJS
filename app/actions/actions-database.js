@@ -24,24 +24,32 @@ export const rebuildDb = (mode, folder) => {
             path = rootPath;
         }else{ // add folder to database
             path = folder;
+            // remove old entries
+            let query = folder.replace(rootPath, "").replace("/", "\/");
+            database.remove({path: new RegExp(query)}, { multi: true }, function (err, num) {
+                database.loadDatabase(function (err) {    });
+            });
         }
         require('node-dir').files(path, function(err, files) {
             if (err) dispatch(rebuildDbRejected("ERROR while reading the database directory"));
             files.forEach(function(file){
                 if(file.endsWith(".mp3")){
-                    var readableStream = fs.createReadStream(file);
-                    var parser =  musicmetadata(readableStream, function (err, metadata) {
-                        if(err) throw err;
-                        // to avoid ratings being undefined
-                        var r = 0;
-                        if(metadata.ratings.length>0){
-                            r = metadata.ratings[0].rating;
-                        }
-                        //remove rootPath from filepath
-                        let filePath = file.replace(rootPath, "");
-                        database.insert({path: filePath, title: metadata.title, track: metadata.track.no, artist: metadata.albumartist[0], album: metadata.album, year: metadata.year, rating: r, selected: false});
-                        readableStream.close();
-                    });
+                    mm.parseFile(file)
+                        .then( metadata => {
+                            let md = metadata.common;
+                            // to avoid ratings being undefined
+                            // TODO rating support will be enabled
+                            var r = 0;
+                            // if(md.ratings>0){
+                            //     r = md.ratings[0].rating;
+                            // }
+                            //remove rootPath from filepath
+                            let filePath = file.replace(rootPath, "");
+                            database.insert({path: filePath, title: md.title, track: md.track.no, artist: md.artist, albumartist: md.albumartist, album: md.album, year: md.year, rating: r, selected: false});
+                        })
+                        .catch((err) => {
+                                console.log(err.message);
+                        });
                 }
             });
             dispatch(rebuildDbFulfilled(mode, folder));
@@ -64,7 +72,7 @@ export const rebuildDbRejected = (err) => {
     }
 }
 //search the database for the search term
-///results are sorted (artist, album, track)
+///results are sorted (albumartist, album, track)
 export const search = (expr) => {
     return function(dispatch){
         const onFinish = (err, docs) => {
@@ -91,10 +99,11 @@ export const search = (expr) => {
                 {title: new RegExp(prefix + expr.toLowerCase() + suffix, "i")},
                 {track: new RegExp(prefix + expr.toLowerCase() + suffix, "i")},
                 {artist: new RegExp(prefix + expr.toLowerCase() + suffix, "i")},
+                {albumartist: new RegExp(prefix + expr.toLowerCase() + suffix, "i")},
                 {album: new RegExp(prefix + expr.toLowerCase() + suffix, "i")},
                 {year: new RegExp(prefix + expr.toLowerCase() + suffix, "i")}
             ]}
-        ).sort({artist: 1, album: 1, track: 1}).exec(onFinish);
+        ).sort({albumartist: 1, album: 1, track: 1}).exec(onFinish);
     }
 }
 

@@ -1,3 +1,5 @@
+import {searchRejected} from "./actions-database.js";
+
 // delete tracks from the tracklist
 export const deleteSelectedTracks = () => {
     return function(dispatch, getState){
@@ -49,10 +51,7 @@ export const addTracks = (tracks) => {
             //check if file exists
             let rootPath = getState().mediaplayer.rootPath;
             if(fs.existsSync(rootPath + track.path)){
-                if(getState().mediaplayer.tracklist.length==0){
-                    dispatch(loadCover(track.path));
-                }
-                dispatch(addTrackFulfilled({id: track._id, title: track.title, path: track.path, artist: track.artist, album: track.album, year: track.year, selected: false}));
+                dispatch(addTrackFulfilled({id: track._id, title: track.title, path: track.path, artist: track.artist, albumartist: track.albumartist, album: track.album, year: track.year, selected: false}));
             }else{
                 dispatch(addTrackRejected("ERROR physical file not found: " + track.path))
             }
@@ -77,18 +76,18 @@ export const addTrackRejected = (err) => {
 //loads coverart
 export const loadCover = (path) => {
     return function(dispatch, getState){
-        //do image processing
         //read coverart
-        let rootPath = getState().mediaplayer.rootPath;
-        var readableStream = fs.createReadStream(rootPath + path);
-        var parser = musicmetadata(readableStream, function (err, metadata) {
-            if (err) throw err;
-            if(metadata.picture.length!=0){
-                dispatch(loadCoverFulfilled(metadata.picture[0].data));
+        let fpath = getState().mediaplayer.rootPath + path;
+        mm.parseFile(fpath)
+        .then( metadata => {
+            if(metadata.common.picture){
+                dispatch(loadCoverFulfilled(metadata.common.picture[0].data));
             }else{
                 dispatch(loadCoverRejected());
             }
-            readableStream.close();
+        })
+        .catch((err) => {
+            console.log(err.message);
         });
     }
 }
@@ -109,17 +108,16 @@ export const loadCoverRejected = () => {
 export const loadTrack = (id, path) => {
    return function(dispatch, getState){
        //read coverart
-       let rootPath = getState().mediaplayer.rootPath;
-       var readableStream = fs.createReadStream(rootPath + path);
-       var parser = musicmetadata(readableStream, function (err, metadata) {
-           if (err) throw err;
-           if(metadata.picture.length!=0){
-               dispatch(loadTrackFulfilled(id, metadata.picture[0].data));
-           }else{
-               dispatch(loadTrackRejected());
+        let fpath = getState().mediaplayer.rootPath + path;
+        mm.parseFile(fpath).then( metadata => {
+            if(metadata.common.picture){
+                dispatch(loadTrackFulfilled(id, metadata.common.picture[0].data));
+            }else{
+                dispatch(loadTrackFulfilled(id, null));
             }
-           readableStream.close();
-       });
+        }).catch((err) => {
+            console.log(err.message);
+        });
     }
 }
 
@@ -132,11 +130,6 @@ export const loadTrackFulfilled = (_id, _img) => {
     }
 }
 
-export const loadTrackRejected = () => {
-    return{
-        type: "LOAD_TRACK_REJECTED"
-    }
-}
 //plays the current track
 export const playTrack = () => {
     return{
@@ -169,43 +162,78 @@ export const forward = () => {
         if(getState().mediaplayer.tracklist.length>getState().mediaplayer.currentTrack+1){ // if there is a next track
             dispatch(loadCover(getState().mediaplayer.tracklist[getState().mediaplayer.currentTrack+1].path));
             dispatch(forwardFulfilled());
-        }else if(getState().mediaplayer.autoDj && getState().mediaplayer.currentTrack >= 0){ // if autoDJ is enabled and there is at least a track in the tracklist
+        }else if(getState().mediaplayer.autoDj == "random") { //if autodj is set to random mode
+            // find random track
+            database.count({}, function (err, count) {
+                    if (!err && count > 0) {
+                        var skipCount = Math.floor(Math.random() * count);
+                        database.find({}).skip(skipCount).limit(1).exec(function (err2, docs) {
+                            if (!err2) {
+                                dispatch(addTracks(docs));
+                                dispatch(loadCover(docs[0].path));
+                                dispatch(forwardFulfilled());
+                            } else {
+                                dispatch(searchRejected("ERROR autodj (random), not appropriate track found"));
+                            }
+                        })
+                    } else {
+                        dispatch(searchRejected("ERROR autodj (random), database empty"));
+                    }
+            });
+        }else if(getState().mediaplayer.autoDj == "albumartist" && getState().mediaplayer.currentTrack >= 0){ // if autoDJ is set to albumartist mode and there is at least a track in the tracklist
             // find appropriate track
             let currentTrack = getState().mediaplayer.tracklist[getState().mediaplayer.currentTrack];
 
             const onFinish = (err, docs) => {
                 if(err) dispatch(searchRejected("ERROR failed to retrieve items from database"));
                 // delete all tracks currently in tracklist (including the track the search was based on)
-                let ids = getState().mediaplayer.tracklist.map(e => e.id);
-                docs = docs.filter(track => ids.indexOf(track._id) == -1);
                 if(docs.length>0){
                     // choose random track
                     let t = Math.floor(Math.random() * docs.length);
                     dispatch(addTracks([docs[t]]));
-                    dispatch(loadCover(getState().mediaplayer.tracklist[getState().mediaplayer.currentTrack+1].path));
+                    dispatch(loadCover(docs[t].path));
                     dispatch(forwardFulfilled());
                 }else{
-                    dispatch(searchRejected("INFO no results found autodj for " + currentTrack.title));
+                    // switching to random autodj if no albumartist tracks remain
+                    dispatch(searchRejected("INFO no results found, autodj (albumartist) for " + currentTrack.title + " by " + currentTrack.albumartist + ". Switching to random autodj."));
+                    //FIXME double toggleAutoDj is ugly
+                    dispatch(toggleAutoDj());
+                    dispatch(toggleAutoDj());
+                    dispatch(forward());
                 }
             }
-            if(currentTrack.album && currentTrack.artist && currentTrack.artist != "Various Artists"){
+            // ids of all tracks in tracklist
+            let ids = getState().mediaplayer.tracklist.map(e => e.id);
+
+            if(currentTrack.album && currentTrack.albumartist && currentTrack.albumartist != "Various Artists"){
+                // FIXME problem if there is an album with the same name from another albumartist (e.g. bloom by rüfüs and beach house)
                 database.find(
-                    {$or:[ {album: currentTrack.album}, {artist: currentTrack.artist} ]}
-                ).sort({album: 1, artist: 1, track: 1}).exec(onFinish);
+                    {$and:
+                        [ {$or: [{album: currentTrack.album}, {albumartist: currentTrack.albumartist}] },
+                        {_id: {$nin: ids}}]}
+                ).sort({album: 1, albumartist: 1, track: 1}).exec(onFinish);
             }else if(currentTrack.album){
-                database.find({album: currentTrack.album}).sort({album: 1, artist: 1, track: 1}).exec(onFinish);
-            }else if(currentTrack.artist && currentTrack.artist != "Various Artists"){
-                database.find({artist: currentTrack.artist}).sort({album: 1, artist: 1, track: 1}).exec(onFinish);
+                database.find(
+                    {$and: [{album: currentTrack.album},
+                        {_id: {$nin: ids}}]}
+                ).sort({album: 1, albumartist: 1, track: 1}).exec(onFinish);
+            }else if(currentTrack.albumartist && currentTrack.albumartist != "Various Artists"){
+                database.find(
+                    {$and: [{albumartist: currentTrack.albumartist},
+                        {_id: {$nin: ids}}]}
+                ).sort({album: 1, albumartist: 1, track: 1}).exec(onFinish);
             }else{
-                dispatch(searchRejected("WARN no artist and album information present for " + currentTrack.title + ". Search aborted."));
+                dispatch(searchRejected("WARN no albumartist and album information present for " + currentTrack.title + ". Search aborted."));
             }
         }
     }
 }
 
-export const forwardFulfilled = () => {
+// advances the tracklist and loads (and optionally plays) the next track
+export const forwardFulfilled = (play) => {
     return {
-        type: "FORWARD_FULFILLED"
+        type: "FORWARD_FULFILLED",
+        play: play
     }
 }
 export const forwardRejected = () => {

@@ -62,7 +62,7 @@ class Controls extends Component {
     playpause(){
         this.props.playPause();
     }
-    autoDj(){
+    toggleAutoDj(){
         this.props.toggleAutoDj();
     }
     convertSecondsToCustomFormat(seconds){
@@ -82,7 +82,14 @@ class Controls extends Component {
             playPauseIcon = "./img/ic_play_circle_filled_white_36dp.png";
         }
         // display autoDJ status
-        let opac = this.props.autoDjStatus ? 1 : .5;
+        let opac;
+        if (this.props.autoDj === "none") {
+            opac = .2;
+        } else if (this.props.autoDj === "random") {
+            opac = .6;
+        } else if (this.props.autoDj === "albumartist") {
+            opac = 1;
+        }
         // compute progress in percent and round to integer
         let progress = 0;
         if(this.props.time!=null && this.props.duration!=null){
@@ -106,7 +113,7 @@ class Controls extends Component {
                     <div style={timeLabelStyle}>{this.convertSecondsToCustomFormat(this.props.duration)}</div>
                 </div>
                 <div style={{height: "48px"}}>
-                    <img onClick={this.autoDj.bind(this)} style={{...smallIconStyle, opacity: opac, float: "right", marginRight: "24px"}} src="./img/ic_queue_play_next_white_24dp.png"></img>
+                    <img onClick={this.toggleAutoDj.bind(this)} style={{...smallIconStyle, opacity: opac, float: "right", marginRight: "24px"}} src="./img/ic_add_to_queue_white_24dp.png"></img>
                     <div style={{margin: "0 auto", width: "150px"}}>
                         <img onClick={this.backward.bind(this)} style={smallIconStyle} src="./img/ic_skip_previous_white_24dp.png"></img>
                         <img onClick={this.playpause.bind(this)} style ={bigIconStyle} src={playPauseIcon}></img>
@@ -123,7 +130,7 @@ function mapStateToProps(state){
         status: state.mediaplayer.status,
         time: state.mediaplayer.time,
         duration: state.mediaplayer.duration,
-        autoDjStatus: state.mediaplayer.autoDj,
+        autoDj: state.mediaplayer.autoDj,
     };
 }
 

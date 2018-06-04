@@ -13,6 +13,7 @@ export default class Tile extends Component {
         id: PropTypes.any.isRequired,
         path: PropTypes.string.isRequired,
         artist: PropTypes.string,
+        albumartist: PropTypes.string,
         title: PropTypes.string.isRequired,
         onClick: PropTypes.func.isRequired,
         onDoubleClick: PropTypes.func.isRequired,
@@ -22,7 +23,8 @@ export default class Tile extends Component {
 
     render() {
         //div style
-        const artist = this.props.artist;
+        // display albumartist by default, otherwise artist
+        const artistToDisplay = this.props.albumartist ? this.props.albumartist : this.props.artist;
         const title = this.props.title;
 
         const style = {
@@ -38,11 +40,11 @@ export default class Tile extends Component {
 
         return(
             <div style={style} onClick ={(e) => this.props.onClick(this.props.index, e)} onDoubleClick={(e) => this.props.onDoubleClick(this.props.id, this.props.path, e)}>
-                <div style={{float: "left", height: "100%"}} >
+                <div style={{height: "100%"}} >
                     <div style={{opacity: opacity.primaryText, paddingTop: "16px"}}>{title}</div>
-                    <div style={{opacity: opacity.secondaryText}}>{artist}</div>
+                    <div style={{opacity: opacity.secondaryText}}>{artistToDisplay}</div>
                 </div>
-                <div style={{float: "right", height: "1px", width: "100%", backgroundColor: "#32363f"}}></div>
+                <div style={{height: "1px", width: "100%", backgroundColor: "#32363f"}}></div>
             </div>
         );
     }

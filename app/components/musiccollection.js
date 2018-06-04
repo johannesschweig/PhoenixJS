@@ -22,6 +22,7 @@ class Musiccollection extends Component {
     }
 
     searchClick = () => {
+        this.refs.searchText.click();
         this.setState({showSearchField: !this.state.showSearchField});
     }
 
@@ -54,7 +55,7 @@ class Musiccollection extends Component {
             return(
                 <tr  key={item._id} style={rowStyle} onClick={(e) => this.clickedTrack(item.index, e)} onDoubleClick={(e) => this.doubleClickedTrack(item, e)}>
                 <td style={{...style, paddingLeft: "24px"}}>{item.title}</td>
-                <td style={{...style, paddingRight: "56px"}}>{item.artist}</td>
+                <td style={{...style, paddingRight: "56px"}}>{item.albumartist}</td>
                 <td style={{...style, paddingRight: "56px"}}>{item.album}</td>
                 <td style={{...style, paddingRight: "56px"}}>{item.year}</td>
                 <td style={{...style, paddingRight: "56px"}}>{item.track}</td>
@@ -111,7 +112,7 @@ class Musiccollection extends Component {
                     <thead>
                     <tr style={{height: "56px"}}>
                     <th style={{...headerStyle, paddingLeft: "24px"}}>Title</th>
-                    <th style={headerStyle}>Artist</th>
+                    <th style={headerStyle}>Albumartist</th>
                     <th style={headerStyle}>Album</th>
                     <th style={headerStyle}>Year</th>
                     <th style={headerStyle}>Track</th>

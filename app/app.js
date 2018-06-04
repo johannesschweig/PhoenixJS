@@ -1,3 +1,4 @@
+import {ipcRenderer} from "electron";
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
@@ -7,7 +8,7 @@ import {applyMiddleware, createStore} from 'redux';
 import reducers from "./reducers/index.js";
 import App from "./components/app.js";
 import {startDb} from "./actions/actions-database.js";
-import {forward, mediaStatusChange, timeUpdate, loadedMetaData} from "./actions/actions-mediaplayer.js";
+import {forward, mediaStatusChange, timeUpdate, loadedMetaData, backward, playPause, toggleAutoDj} from "./actions/actions-mediaplayer.js";
 
 //what middlewares should be added after an action is fired
 //thunk allows the delay or conditional dispatch of actions
@@ -15,7 +16,7 @@ const middleware = applyMiddleware(thunk); //, createLogger());
 const store = createStore(reducers, middleware);
 
 //fs
-const fs = require("fs");
+const fs = require("graceful-fs");
 
 //database
 const Datastore = require("nedb");
@@ -40,10 +41,25 @@ audiofile.addEventListener("timeupdate", () => store.dispatch(timeUpdate(audiofi
 // audiofile.muted = true;
 
 //musicmetadata
-const musicmetadata = require("musicmetadata");
+const mm = require("music-metadata");
 
 // version
-console.log("INFO loaded version 15.04.2018");
+console.log("INFO loaded version 04.06.2018");
+
+// Handle keyboard shortcuts
+ipcRenderer.on("forward", () => {
+    store.dispatch(forward());
+});
+ipcRenderer.on("backward", () => {
+    store.dispatch(backward());
+});
+ipcRenderer.on("playPause", () => {
+    store.dispatch(playPause());
+});
+ipcRenderer.on("autodj", () => {
+    store.dispatch(toggleAutoDj());
+});
+
 
 //Provider grants access to store to all components
 ReactDOM.render(
