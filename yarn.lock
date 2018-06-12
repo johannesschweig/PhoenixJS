@@ -2176,6 +2176,10 @@ file-entry-cache@^2.0.0:
     flat-cache "^1.2.1"
     object-assign "^4.0.1"
 
+file-type@^8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/file-type/-/file-type-8.0.0.tgz#6e4bccc741187f4113334a4e4a4ef84d54d7cc1e"
+
 filename-regex@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/filename-regex/-/filename-regex-2.0.1.tgz#c1c4b9bee3e09725ddb106b75c1e301fe2f18b26"
@@ -3394,12 +3398,13 @@ ms@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
 
-music-metadata@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/music-metadata/-/music-metadata-1.1.0.tgz#0f08dd39115546408d01ea7cc858ace48ffeb40f"
+music-metadata@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/music-metadata/-/music-metadata-2.0.1.tgz#1bb01423708edc69ff65fbf9f1c9e9d01c29af21"
   dependencies:
     bluebird "^3.5.1"
     debug "^3.1.0"
+    file-type "^8.0.0"
     fs-extra "^6.0.1"
     strtok3 "^1.4.2"
     then-read-stream "^1.1.3"

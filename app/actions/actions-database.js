@@ -38,11 +38,10 @@ export const rebuildDb = (mode, folder) => {
                         .then( metadata => {
                             let md = metadata.common;
                             // to avoid ratings being undefined
-                            // TODO rating support will be enabled
-                            var r = 0;
-                            // if(md.ratings>0){
-                            //     r = md.ratings[0].rating;
-                            // }
+                            let r = 0;
+                            if(md.rating && md.rating.length>0){
+                                r = Math.round(md.rating[0].rating);
+                            }
                             //remove rootPath from filepath
                             let filePath = file.replace(rootPath, "");
                             database.insert({path: filePath, title: md.title, track: md.track.no, artist: md.artist, albumartist: md.albumartist, album: md.album, year: md.year, rating: r, selected: false});
