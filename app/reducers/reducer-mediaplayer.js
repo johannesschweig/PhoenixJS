@@ -1,7 +1,6 @@
 import update from 'immutability-helper';
 
 const initialState = {
-    rootPath: process.platform === "linux" ? "/mnt/music/Musik/" : "E:/Musik/",
     status: null, //status: playing or paused
     autoDj: "random", //status of the autoDJ: enabled or disabled
     time: null, //currentTime
@@ -27,10 +26,10 @@ export function MediaplayerReducer(state=initialState, action){
                 //check if new audiofile exists
                 if(tl.length>1){ //switch to next track
                     if(tl.length-index>1){ //if there is a subsequent track
-                        audiofile.src = state.rootPath + tl[ct+1].path;
+                        audiofile.src = rootPath + tl[ct+1].path;
                         return {...state, status: "paused", currentTrack: ct, tracklist: state.tracklist.filter(track => track.id !== id), time: null, duration: audiofile.duration};
                     }else{ // if there is previous track
-                        audiofile.src = state.rootPath + tl[ct-1].path;
+                        audiofile.src = rootPath + tl[ct-1].path;
                         return {...state, status: "paused", currentTrack: ct-1, tracklist: state.tracklist.filter(track => track.id !== id), time: null, duration: audiofile.duration};
                     }
                 }else{ //last track in tracklist
@@ -77,7 +76,7 @@ export function MediaplayerReducer(state=initialState, action){
         case "LOAD_TRACK_FULFILLED":
             let index = state.tracklist.findIndex(e => e.id === action.id);
             audiofile.pause();
-            audiofile.src = state.rootPath + state.tracklist[index].path;
+            audiofile.src = rootPath + state.tracklist[index].path;
             //play track
             audiofile.play();
             return {...state, status: "playing", currentTrack: index, cover: action.img};
@@ -119,7 +118,7 @@ export function MediaplayerReducer(state=initialState, action){
             // load and play next track
             ct = state.currentTrack;
             audiofile.pause();
-            audiofile.src = state.rootPath + state.tracklist[ct+1].path;
+            audiofile.src = rootPath + state.tracklist[ct+1].path;
             audiofile.play();
             return {...state, status: "playing", currentTrack: ct+1, time: null, duration: audiofile.duration};
             break;
@@ -133,7 +132,7 @@ export function MediaplayerReducer(state=initialState, action){
                 return {...state, time: 0};
             }if(ct>=1){ //if there is a previous track
                 audiofile.pause();
-                audiofile.src = state.rootPath + state.tracklist[ct-1].path;
+                audiofile.src = rootPath + state.tracklist[ct-1].path;
                 audiofile.play();
                 return {...state, status: "playing", currentTrack: ct-1, time: null, duration: audiofile.duration};
             }else{

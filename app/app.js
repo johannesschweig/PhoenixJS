@@ -13,6 +13,7 @@ import {forward, mediaStatusChange, timeUpdate, loadedMetaData, backward, playPa
 //what middlewares should be added after an action is fired
 //thunk allows the delay or conditional dispatch of actions
 const middleware = applyMiddleware(thunk); //, createLogger());
+const rootPath = process.platform === "linux" ? "/mnt/music/Musik/" : "E:/Musik/";
 const store = createStore(reducers, middleware);
 
 //fs
@@ -20,7 +21,7 @@ const fs = require("graceful-fs");
 
 //database
 const Datastore = require("nedb");
-const databaseFilePath = "./musiccollection.db";
+const databaseFilePath = rootPath.replace("Musik", "Tools") + "musiccollection.db";
 // check if database file exists
 if(!fs.existsSync(databaseFilePath)){
     console.error("Database file '" + databaseFilePath + "' not found");
@@ -44,7 +45,7 @@ audiofile.addEventListener("timeupdate", () => store.dispatch(timeUpdate(audiofi
 const mm = require("music-metadata");
 
 // version
-console.log("INFO loaded version 04.06.2018");
+console.log("INFO loaded 25.06.2018");
 
 // Handle keyboard shortcuts
 ipcRenderer.on("forward", () => {

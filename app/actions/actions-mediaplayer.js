@@ -49,7 +49,6 @@ export const addTracks = (tracks) => {
     return function(dispatch, getState){
         for (let track of tracks) {
             //check if file exists
-            let rootPath = getState().mediaplayer.rootPath;
             if(fs.existsSync(rootPath + track.path)){
                 dispatch(addTrackFulfilled({id: track._id, title: track.title, path: track.path, artist: track.artist, albumartist: track.albumartist, album: track.album, year: track.year, selected: false}));
             }else{
@@ -77,7 +76,7 @@ export const addTrackRejected = (err) => {
 export const loadCover = (path) => {
     return function(dispatch, getState){
         //read coverart
-        let fpath = getState().mediaplayer.rootPath + path;
+        let fpath = rootPath + path;
         mm.parseFile(fpath)
         .then( metadata => {
             if(metadata.common.picture){
@@ -108,7 +107,7 @@ export const loadCoverRejected = () => {
 export const loadTrack = (id, path) => {
    return function(dispatch, getState){
        //read coverart
-        let fpath = getState().mediaplayer.rootPath + path;
+        let fpath = rootPath + path;
         mm.parseFile(fpath).then( metadata => {
             if(metadata.common.picture){
                 dispatch(loadTrackFulfilled(id, metadata.common.picture[0].data));

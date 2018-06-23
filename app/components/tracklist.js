@@ -12,24 +12,29 @@ class Tracklist extends Component {
         this.state = {
             lastSelectedEntry: -1,
         };
+        // not in the state, bc they should not cause it to update
+        this.lastTracklistLength = -1;
+        this.lastCurrentTrack = -1;
     }
     //populates <li> with items from state
     createTracklist(){
         return this.props.tracklist.map((track, i) => {
             let active = (i == this.props.currentTrack);
             return(
-                <Tile
-                key={track.id}
-                index={i}
-                active={active}
-                title={track.title}
-                artist={track.artist}
-                albumartist={track.albumartist}
-                selected={track.selected}
-                id={track.id}
-                path={track.path}
-                onClick={this.clickedTrack.bind(this, i)}
-                onDoubleClick={this.doubleClickedTrack.bind(this, track.path)}/>
+                <div ref={i} key={i}>
+                    <Tile
+                    key={track.id}
+                    index={i}
+                    active={active}
+                    title={track.title}
+                    artist={track.artist}
+                    albumartist={track.albumartist}
+                    selected={track.selected}
+                    id={track.id}
+                    path={track.path}
+                    onClick={this.clickedTrack.bind(this, i)}
+                    onDoubleClick={this.doubleClickedTrack.bind(this, track.path)}/>
+                </div>
             );
         });
     }
@@ -38,6 +43,7 @@ class Tracklist extends Component {
     //delete selected tracks from tracklist
     deleteSelectedTracks(){
         this.props.deleteSelectedTracks();
+        this.setState({lastSelectedEntry: -1});
     }
     //converts Uint8Array into base64 coding
     arrayBufferToBase64( buffer ) {
@@ -53,7 +59,7 @@ class Tracklist extends Component {
     // selects track
     clickedTrack(index, i, e){
         // if shift key is also down (range selection)
-        if (e.shiftKey) {
+        if (e.shiftKey && this.state.lastSelectedEntry != -1) {
             let start = Math.min(this.state.lastSelectedEntry, index);
             let end = Math.max(this.state.lastSelectedEntry, index);
             this.props.selectInTracklist(Array(end - start + 1).fill().map((_, idx) => start + idx), false);
@@ -76,13 +82,20 @@ class Tracklist extends Component {
     render(){
         let img_path = this.props.cover==null ? "./img/cover.png" : ("data:image/jpg;base64," + this.arrayBufferToBase64(this.props.cover));
 
+        const delStyle = {
+            float: "right",
+            padding: "10px 8px",
+            cursor: this.state.lastSelectedEntry != -1 ? "pointer" : "auto",
+            opacity: this.state.lastSelectedEntry != -1 ? 1 : .7,
+        };
+
         return(
             <div style={{width: "700px", margin: "24px auto"}}>
                 <img style={{float: "left", height: "300px", width: "300px"}} src={img_path}></img>
                 <div style={{height: "300px", marginLeft: "300px"}}>
                     <div style={{height: "48px", fontSize: "20px", paddingLeft: "16px", lineHeight: "48px", backgroundColor: colors.primaryLightColor, opacity: opacity.primaryText, marginBottom: "4px"}}>
                         <div style={{float: "left"}}>Tracklist</div>
-                        <img style={{float: "right", padding: "10px 8px", cursor: "pointer"}} onClick={this.deleteSelectedTracks.bind(this)} src="./img/ic_delete_white_24dp.png"></img>
+                        <img style={delStyle} onClick={this.deleteSelectedTracks.bind(this)} src="./img/ic_delete_white_24dp.png"></img>
                     </div>
                     <div style={{height: "252px", overflow: "auto"}}>
                         {this.createTracklist()}
@@ -91,7 +104,23 @@ class Tracklist extends Component {
             </div>
         );
     }
+
+    componentDidUpdate() {
+        let len = this.props.tracklist.length;
+        let ct = this.props.currentTrack;
+        // if active track changed, scroll to it
+        // i.e. tracklist length stayed the same (no deletion) and currentTrack changed
+        if (len == this.lastTracklistLength && ct != -1 && ct != this.lastCurrentTrack) {
+            this.refs[this.props.currentTrack].scrollIntoView({ behavior: "smooth" });
+        }
+        // update local state
+        this.lastTracklistLength = len;
+        this.lastCurrentTrack = ct;
+    }
 }
+
+
+
 //maps state (passed in) as props to components
 function mapStateToProps(state){
     return {

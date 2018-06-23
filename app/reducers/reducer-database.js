@@ -26,7 +26,7 @@ export function DatabaseReducer(state=initialState, action){
                 obj.selected = false;
                 return obj;
             });
-            return { ...state, searchResults: sr, lastSearch: action.term };
+            return { ...state, searchResults: sr, lastSearch: action.term};
             break;
         case "SEARCH_EMPTY":
             return {...state, searchResults: [], lastSearch: action.payload};

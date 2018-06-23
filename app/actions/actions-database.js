@@ -12,7 +12,6 @@ export const rebuildDb = (mode, folder) => {
     return function(dispatch, getState){
         // path to rebuild
         let path;
-        let rootPath = getState().mediaplayer.rootPath;
         // delete database and make a full rebuild
         if(mode=="full"){
             //drop old database

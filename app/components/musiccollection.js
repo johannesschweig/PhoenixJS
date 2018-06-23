@@ -127,7 +127,7 @@ class Musiccollection extends Component {
 
     clickedTrack = (index, e) => {
         // if shift key is also down (range selection)
-        if (e.shiftKey) {
+        if (e.shiftKey && this.state.lastSelectedEntry != -1) {
             let start = Math.min(this.state.lastSelectedEntry, index);
             let end = Math.max(this.state.lastSelectedEntry, index);
             this.props.selectInMusiccollection(Array(end - start + 1).fill().map((_, idx) => start + idx), false);
@@ -151,6 +151,7 @@ class Musiccollection extends Component {
     search(event){
         if(event.key == "Enter"){
             event.preventDefault(); //consumes the event
+            this.setState({lastSelectedEntry: -1});
             this.props.search(this.refs.searchText.value);
             this.focusOff();
         }
@@ -160,6 +161,7 @@ class Musiccollection extends Component {
     rebuildDb(){
         this.props.rebuildDb("full");
     }
+
     // adds a folder to the database
     addToDb(){
         const {dialog} = require('electron').remote;
@@ -226,11 +228,12 @@ class Musiccollection extends Component {
                             <div style={menuItemStyle} onClick={this.addToDb.bind(this)}>Add folder to database</div>
                         </div>
                     </div>
-                    <img onClick={this.addClick} style={imgStyle} src="./img/ic_playlist_add_white_24dp.png"></img>
+                    <img onClick={this.addClick} style={{...imgStyle, opacity: this.state.lastSelectedEntry == -1 ? .7 : 1, cursor: this.state.lastSelectedEntry == -1 ? "auto" : "pointer"}} src="./img/ic_playlist_add_white_24dp.png"></img>
                     <img onClick={this.searchClick} style={imgStyle} src="./img/ic_search_white_24dp.png"></img>
                     <textarea ref="searchText" onBlur={this.focusOff} placeholder="Search" onKeyPress={this.search.bind(this)} style={textStyle}/>
                 </div>
-                <div style={{overflowX: "hidden", overflowY: "auto", height: "50vh"}}> {this.createTable()} </div>
+                {/* FIXME ugly hardcoding of 500px height of other components */}
+                <div style={{overflowX: "hidden", overflowY: "auto", height: "calc(100vh - 500px)"}}> {this.createTable()} </div>
             </div>
         );
     }
