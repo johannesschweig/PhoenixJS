@@ -44,10 +44,10 @@ app.on('ready', async () => {
     }
 
     mainWindow = new BrowserWindow({
-        width: 1000,
-        height: 800,
+        width: 800,
+        height: 430,
         minWidth: 640,
-        minHeight: 480,
+        minHeight: 430,
         show: false,
         icon: path.join(__dirname, "/img/icon.png")
     });
@@ -101,19 +101,23 @@ app.on('ready', async () => {
         });
 
     // register keyboard shortcuts
+    // backward
     globalShortcut.register("CmdOrCtrl+PageUp", () => {
         mainWindow.webContents.send("backward");
     });
+    // forward
     globalShortcut.register("CmdOrCtrl+PageDown", () => {
         mainWindow.webContents.send("forward");
     });
+    // play/pause
     globalShortcut.register("CmdOrCtrl+Home", () => {
         mainWindow.webContents.send("playPause");
     });
+    // autodj
     globalShortcut.register("CmdOrCtrl+End", () => {
         mainWindow.webContents.send("autodj");
     });
-    });
+});
 
 app.on("will-quit", () => {
     //unregister shortcuts

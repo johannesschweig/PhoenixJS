@@ -2,28 +2,21 @@ import React , {Component} from "react";
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
 import {addSelectedTracks, search, rebuildDb, selectInMusiccollection} from "../actions/actions-database.js";
-import {addTracks} from "../actions/actions-mediaplayer.js";
+import {addTracks, toggleMusiccollectionOverlay} from "../actions/actions-mediaplayer.js";
 import {colors, opacity} from "../style.js";
 
 class Musiccollection extends Component {
     constructor(props){
         super(props);
         this.state = {
-            showSearchField: false,
             hoverMore: false,
             lastSelectedEntry: -1, // last selected entry, -1 none
         }
     }
 
-
-    focusOff = () => {
+    componentDidUpdate(prevProps, prevState) {
         this.refs.searchText.value = "";
-        this.setState({showSearchField: false});
-    }
-
-    searchClick = () => {
-        this.refs.searchText.click();
-        this.setState({showSearchField: !this.state.showSearchField});
+        this.refs.searchText.focus();
     }
 
     addClick = () => {
@@ -153,7 +146,6 @@ class Musiccollection extends Component {
             event.preventDefault(); //consumes the event
             this.setState({lastSelectedEntry: -1});
             this.props.search(this.refs.searchText.value);
-            this.focusOff();
         }
     }
 
@@ -170,23 +162,25 @@ class Musiccollection extends Component {
         if(folder) this.props.rebuildDb("partial", folder + "/");
     }
 
+    // closes the overlay
+    closeOverlay() {
+        this.props.toggleMusiccollectionOverlay(false);
+    }
+
     render(){
         const textStyle = {
             backgroundColor: "transparent",
             border: "none",
             color: colors.primaryTextColor,
             opacity: opacity.primaryText,
-            width: "20vh",
+            width: "50vh",
             height: "20px",
             fontFamily: "inherit",
             fontSize: "16px",
-            padding: "22px 0",
+            padding: "24px 8px 20px 8px",
             // no glowing broder on focus
             outline: "none",
-            // right, not resizable
             resize: "none",
-            float: "right",
-            display: this.state.showSearchField ? "block" : "none",
         };
 
         const buttonStyle = {
@@ -198,17 +192,12 @@ class Musiccollection extends Component {
             float: "right",
         };
 
-        const imgStyle = {
-            float: "right",
-            cursor: "pointer",
-            margin: "20px 4px",
-        }
         const menuStyle = {
             display: this.state.hoverMore ? "block" : "none",
             position: "absolute",
             zIndex: "1",
             right: "0",
-            top: "64px"
+            top: "64px",
         }
 
         const menuItemStyle = {
@@ -218,22 +207,24 @@ class Musiccollection extends Component {
         }
 
         return(
-            <div>
-                <div style={{display: "block", margin: "8px 0", padding: "0 24px", backgroundColor: colors.primaryLightColor, height: "64px"}}>
-                    <div style={{float: "left", height: "inherit", lineHeight: "64px", fontSize: "20px"}}>Musiccollection</div>
-                    <div style={{float: "right", position: "relative", display: "inline-block"}} onMouseEnter={this.hoverMoreOn} onMouseLeave={this.hoverMoreOff}>
-                        <img style={{cursor: "pointer", padding: "20px 2px"}} src="./img/ic_more_vert_white_24dp.png"></img>
-                        <div style={menuStyle}>
+            <div style={{position: "fixed", top: this.props.visible ? "0px" : "500px", width: "100%", height: "100%", transition: "top 0.5s ease-in-out"}}>
+                <div style={{display: "block", padding: "0 24px", backgroundColor: colors.primaryLightColor, height: "64px"}}>
+                    <div style={{display: "inline", height: "inherit", lineHeight: "64px", fontSize: "20px"}}>
+                        <img style={{margin: "20px 4px"}} src="./img/ic_search_white_24dp.png"></img>
+                        <textarea ref="searchText" placeholder="Search" onKeyPress={this.search.bind(this)} style={textStyle}/>
+                    </div>
+                    <div style={{float: "right", position: "relative", display: "inline-block"}}>
+                        <img onClick={this.addClick} style={{padding: "20px 4px", opacity: this.state.lastSelectedEntry == -1 ? .7 : 1, cursor: this.state.lastSelectedEntry == -1 ? "auto" : "pointer"}} src="./img/ic_playlist_add_white_24dp.png"></img>
+                        <img style={{cursor: "pointer", padding: "20px 2px"}} src="./img/ic_more_vert_white_24dp.png"  onMouseEnter={this.hoverMoreOn} onMouseLeave={this.hoverMoreOff}></img>
+                        <div style={menuStyle} onMouseEnter={this.hoverMoreOn} onMouseLeave={this.hoverMoreOff}>
                             <div style={menuItemStyle} onClick={this.rebuildDb.bind(this)}>Rebuild database</div>
                             <div style={menuItemStyle} onClick={this.addToDb.bind(this)}>Add folder to database</div>
                         </div>
+                        <img style={{cursor: "pointer", padding: "20px 2px"}} src="./img/ic_close_white_24dp.png" onClick={this.closeOverlay.bind(this)}></img>
                     </div>
-                    <img onClick={this.addClick} style={{...imgStyle, opacity: this.state.lastSelectedEntry == -1 ? .7 : 1, cursor: this.state.lastSelectedEntry == -1 ? "auto" : "pointer"}} src="./img/ic_playlist_add_white_24dp.png"></img>
-                    <img onClick={this.searchClick} style={imgStyle} src="./img/ic_search_white_24dp.png"></img>
-                    <textarea ref="searchText" onBlur={this.focusOff} placeholder="Search" onKeyPress={this.search.bind(this)} style={textStyle}/>
                 </div>
                 {/* FIXME ugly hardcoding of 500px height of other components */}
-                <div style={{overflowX: "hidden", overflowY: "auto", height: "calc(100vh - 500px)"}}> {this.createTable()} </div>
+                <div style={{position: "fixed", overflowX: "hidden", overflowY: "auto", backgroundColor: colors.primaryColor, height: "calc(100vh - 64px)", width: "100%"}}> {this.createTable()} </div>
             </div>
         );
     }
@@ -242,12 +233,13 @@ class Musiccollection extends Component {
 function mapStateToProps(state){
     return {
         database: state.database,
+        visible: state.mediaplayer.musiccollectionVisible,
     };
 }
 
 //maps actions to props
 function mapDispatchToProps(dispatch){
-    return bindActionCreators({addSelectedTracks, search, rebuildDb, addTracks, selectInMusiccollection}, dispatch);
+    return bindActionCreators({addSelectedTracks, search, rebuildDb, addTracks, selectInMusiccollection, toggleMusiccollectionOverlay}, dispatch);
 }
 
 //Turn dump component into smart container

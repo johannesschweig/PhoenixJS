@@ -2,7 +2,7 @@ import React , {Component} from "react";
 var ReactDOM = require('react-dom');
 import {bindActionCreators} from "redux";
 import {connect} from "react-redux";
-import {seek, backward, forward, toggleAutoDj, playPause} from "../actions/actions-mediaplayer.js";
+import {seek, backward, forward, toggleAutoDj, toggleMusiccollectionOverlay, playPause} from "../actions/actions-mediaplayer.js";
 import {colors} from "../style.js";
 
 const smallIconStyle = {
@@ -65,6 +65,12 @@ class Controls extends Component {
     toggleAutoDj(){
         this.props.toggleAutoDj();
     }
+
+    // shows the musiccollection overlay
+    showMusiccollectionOverlay() {
+        this.props.toggleMusiccollectionOverlay(true);
+    }
+
     convertSecondsToCustomFormat(seconds){
         if(seconds){
             // return seconds in format m:ss
@@ -112,8 +118,11 @@ class Controls extends Component {
                     </div>
                     <div style={timeLabelStyle}>{this.convertSecondsToCustomFormat(this.props.duration)}</div>
                 </div>
-                <div style={{height: "48px"}}>
-                    <img onClick={this.toggleAutoDj.bind(this)} style={{...smallIconStyle, opacity: opac, float: "right", marginRight: "24px"}} src="./img/ic_add_to_queue_white_24dp.png"></img>
+                <div style={{height: "48px", paddingBottom: "8px"}}>
+                    <div style={{float: "right", marginRight: "24px"}}>
+                        <img onClick={this.showMusiccollectionOverlay.bind(this)} style={smallIconStyle} src="./img/ic_search_white_24dp.png"></img>
+                        <img onClick={this.toggleAutoDj.bind(this)} style={{...smallIconStyle, opacity: opac}} src="./img/ic_add_to_queue_white_24dp.png"></img>
+                    </div>
                     <div style={{margin: "0 auto", width: "150px"}}>
                         <img onClick={this.backward.bind(this)} style={smallIconStyle} src="./img/ic_skip_previous_white_24dp.png"></img>
                         <img onClick={this.playpause.bind(this)} style ={bigIconStyle} src={playPauseIcon}></img>
@@ -136,7 +145,7 @@ function mapStateToProps(state){
 
 //maps actions to props
 function mapDispatchToProps(dispatch){
-    return bindActionCreators({seek, backward, forward, toggleAutoDj, playPause}, dispatch);
+    return bindActionCreators({seek, backward, forward, toggleAutoDj, playPause, toggleMusiccollectionOverlay}, dispatch);
 }
 
 //Turn dump component into smart container

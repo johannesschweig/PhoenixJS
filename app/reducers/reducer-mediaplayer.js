@@ -7,7 +7,8 @@ const initialState = {
     duration: null,
     currentTrack: -1, //int of current track in tracklist 0-99
     cover: null, //cover of current track
-    tracklist: []
+    tracklist: [],
+    musiccollectionVisible: false, // if musiccollection overlay is visible
 };
 
 export function MediaplayerReducer(state=initialState, action){
@@ -160,6 +161,9 @@ export function MediaplayerReducer(state=initialState, action){
                 }
                 return obj;
             })};
+            break;
+        case "TOGGLE_MUSICCOLLECTION_OVERLAY":
+            return {...state, musiccollectionVisible: action.payload};
             break;
         }
         return state;

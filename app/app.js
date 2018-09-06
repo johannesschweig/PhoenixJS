@@ -8,7 +8,7 @@ import {applyMiddleware, createStore} from 'redux';
 import reducers from "./reducers/index.js";
 import App from "./components/app.js";
 import {startDb} from "./actions/actions-database.js";
-import {forward, mediaStatusChange, timeUpdate, loadedMetaData, backward, playPause, toggleAutoDj} from "./actions/actions-mediaplayer.js";
+import {forward, mediaStatusChange, timeUpdate, loadedMetaData, backward, playPause, toggleAutoDj, toggleMusiccollectionOverlay} from "./actions/actions-mediaplayer.js";
 
 //what middlewares should be added after an action is fired
 //thunk allows the delay or conditional dispatch of actions
@@ -45,7 +45,7 @@ audiofile.addEventListener("timeupdate", () => store.dispatch(timeUpdate(audiofi
 const mm = require("music-metadata");
 
 // version
-console.log("INFO loaded 25.06.2018");
+console.log("INFO loaded version 06.09.2018");
 
 // Handle keyboard shortcuts
 ipcRenderer.on("forward", () => {
@@ -61,6 +61,14 @@ ipcRenderer.on("autodj", () => {
     store.dispatch(toggleAutoDj());
 });
 
+window.addEventListener('keyup', (e) => {
+    switch(e.code) {
+        case "Escape": store.dispatch(toggleMusiccollectionOverlay(false));
+            break;
+        case "KeyF": store.dispatch(toggleMusiccollectionOverlay(true));
+            break;
+    }
+}, true);
 
 //Provider grants access to store to all components
 ReactDOM.render(

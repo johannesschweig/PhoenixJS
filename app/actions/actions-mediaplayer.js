@@ -293,3 +293,11 @@ export const selectInTracklist = (indices, exclusive) => {
         exclusive: exclusive,
     }
 }
+
+// show the musiccollection overlay
+export const toggleMusiccollectionOverlay = (visible) => {
+    return {
+        type: "TOGGLE_MUSICCOLLECTION_OVERLAY",
+        payload: visible
+    }
+}
