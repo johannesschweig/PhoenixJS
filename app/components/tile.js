@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import {opacity, colors} from "../style.js";
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import {opacity, colors} from "../style.js"
 
 // Tile for individual tracks in tracklist
 export default class Tile extends Component {
     constructor(props){
-        super(props);
+        super(props)
     }
 
     static propTypes = {
@@ -19,13 +19,13 @@ export default class Tile extends Component {
         onDoubleClick: PropTypes.func.isRequired,
         active: PropTypes.bool.isRequired,
         selected: PropTypes.bool.isRequired,
-    };
+    }
 
     render() {
         //div style
         // display albumartist by default, otherwise artist
-        const artistToDisplay = this.props.albumartist ? this.props.albumartist : this.props.artist;
-        const title = this.props.title;
+        const artistToDisplay = this.props.albumartist ? this.props.albumartist : this.props.artist
+        const title = this.props.title
 
         const style = {
             height: "60px",
@@ -34,7 +34,7 @@ export default class Tile extends Component {
             cursor: "pointer",
             color: this.props.active ? colors.secondaryColor : colors.primaryTextColor,
             backgroundColor: this.props.selected ? colors.primaryLightColor : "transparent",
-        };
+        }
 
 
 
@@ -46,6 +46,6 @@ export default class Tile extends Component {
                 </div>
                 <div style={{height: "1px", width: "100%", backgroundColor: "#32363f"}}></div>
             </div>
-        );
+        )
     }
 }

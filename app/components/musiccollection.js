@@ -1,13 +1,14 @@
-import React , {Component} from "react";
-import {bindActionCreators} from "redux";
-import {connect} from "react-redux";
-import {addSelectedTracks, search, rebuildDb, selectInMusiccollection} from "../actions/actions-database.js";
-import {addTracks, toggleMusiccollectionOverlay} from "../actions/actions-mediaplayer.js";
-import {colors, opacity} from "../style.js";
+import React , {Component} from "react"
+import {bindActionCreators} from "redux"
+import {connect} from "react-redux"
+import {addSelectedTracks, search, rebuildDb, selectInMusiccollection} from "../actions/actions-database.js"
+import {addTracks} from "../actions/actions-mediaplayer.js"
+import {toggleMusiccollectionOverlay} from "../actions/actions-application.js"
+import {colors, opacity} from "../style.js"
 
 class Musiccollection extends Component {
     constructor(props){
-        super(props);
+        super(props)
         this.state = {
             hoverMore: false,
             lastSelectedEntry: -1, // last selected entry, -1 none
@@ -15,19 +16,15 @@ class Musiccollection extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        this.refs.searchText.value = "";
-        this.refs.searchText.focus();
-    }
-
-    addClick = () => {
-        this.props.addSelectedTracks();
+        this.refs.searchText.value = ""
+        this.refs.searchText.focus()
     }
 
     hoverMoreOn = () => {
-        this.setState({hoverMore: true});
+        this.setState({hoverMore: true})
     }
     hoverMoreOff = () => {
-        this.setState({hoverMore: false});
+        this.setState({hoverMore: false})
     }
 
     createRows(){
@@ -38,13 +35,13 @@ class Musiccollection extends Component {
             borderCollapse: "collapse",
             fontSize: "13px",
             height: "48px",
-        };
+        }
 
         return this.props.database.searchResults.map((item) => {
             const rowStyle = {
                 cursor: "pointer",
                 backgroundColor: item.selected ? colors.primaryLightColor : "transparent",
-            };
+            }
             return(
                 <tr  key={item._id} style={rowStyle} onClick={(e) => this.clickedTrack(item.index, e)} onDoubleClick={(e) => this.doubleClickedTrack(item, e)}>
                 <td style={{...style, paddingLeft: "24px"}}>{item.title}</td>
@@ -54,8 +51,8 @@ class Musiccollection extends Component {
                 <td style={{...style, paddingRight: "56px"}}>{item.track}</td>
                 <td style={{...style, paddingRight: "24px"}}>{this.createRating(item.rating)}</td>
                 </tr>
-            );
-        });
+            )
+        })
     }
 
     //create rating images from numeric rating
@@ -63,23 +60,17 @@ class Musiccollection extends Component {
         const starStyle = {
             float: "left",
             height: "inherit",
-        };
+        }
         //rating
-        //0:0
-        //1:1-51
-        //2:52-103, 64
-        //3:104-155, 118,128
-        //4:156-211, 186,196
-        //5:211-255, 252,255
         return(
             <div style={{height: "13px"}}>
                 <img style={starStyle} src={rating > 0 ? "./img/ic_star_white_18dp.png" : "./img/ic_star_border_white_18dp.png"}></img>
-                <img style={starStyle} src={rating > 50 ? "./img/ic_star_white_18dp.png" : "./img/ic_star_border_white_18dp.png"}></img>
-                <img style={starStyle} src={rating > 100 ? "./img/ic_star_white_18dp.png" : "./img/ic_star_border_white_18dp.png"}></img>
-                <img style={starStyle} src={rating > 150 ? "./img/ic_star_white_18dp.png" : "./img/ic_star_border_white_18dp.png"}></img>
-                <img style={starStyle} src={rating > 196 ? "./img/ic_star_white_18dp.png" : "./img/ic_star_border_white_18dp.png"}></img>
+                <img style={starStyle} src={rating > 1 ? "./img/ic_star_white_18dp.png" : "./img/ic_star_border_white_18dp.png"}></img>
+                <img style={starStyle} src={rating > 2 ? "./img/ic_star_white_18dp.png" : "./img/ic_star_border_white_18dp.png"}></img>
+                <img style={starStyle} src={rating > 3 ? "./img/ic_star_white_18dp.png" : "./img/ic_star_border_white_18dp.png"}></img>
+                <img style={starStyle} src={rating > 4 ? "./img/ic_star_white_18dp.png" : "./img/ic_star_border_white_18dp.png"}></img>
             </div>
-        );
+        )
     }
 
     //create a table from results
@@ -88,15 +79,15 @@ class Musiccollection extends Component {
             fontSize: "12px",
             opacity: opacity.secondaryText,
             textAlign: "left",
-        };
+        }
 
         if(this.props.database.searchResults.length==0){
             if(!this.props.database.databaseState){ // database has not started yet or was not found
-                return( <div style={{fontSize: "13px", opacity: opacity.hintText, margin: "0 24px", height: "50px", lineHeight: "50px"}}>No connection to database</div> );
+                return( <div style={{fontSize: "13px", opacity: opacity.hintText, margin: "0 24px", height: "50px", lineHeight: "50px"}}>No connection to database</div> )
             }else if(this.props.database.lastSearch){ // nothing was found on search
-                return( <div style={{fontSize: "13px", opacity: opacity.hintText, margin: "0 24px", height: "50px", lineHeight: "50px"}}>No results for "{this.props.database.lastSearch}"</div> );
+                return( <div style={{fontSize: "13px", opacity: opacity.hintText, margin: "0 24px", height: "50px", lineHeight: "50px"}}>No results for "{this.props.database.lastSearch}"</div> )
             }else{ // no last search, startup
-                return( <div style={{fontSize: "13px", opacity: opacity.hintText, margin: "0 24px", height: "50px", lineHeight: "50px"}}>Start a search to view results</div> );
+                return( <div style={{fontSize: "13px", opacity: opacity.hintText, margin: "0 24px", height: "50px", lineHeight: "50px"}}>Start a search to view results</div> )
             }
 
         }else{
@@ -114,57 +105,57 @@ class Musiccollection extends Component {
                     </thead>
                     <tbody>{this.createRows()}</tbody>
                 </table>
-            );
+            )
         }
     }
 
     clickedTrack = (index, e) => {
         // if shift key is also down (range selection)
         if (e.shiftKey && this.state.lastSelectedEntry != -1) {
-            let start = Math.min(this.state.lastSelectedEntry, index);
-            let end = Math.max(this.state.lastSelectedEntry, index);
-            this.props.selectInMusiccollection(Array(end - start + 1).fill().map((_, idx) => start + idx), false);
+            let start = Math.min(this.state.lastSelectedEntry, index)
+            let end = Math.max(this.state.lastSelectedEntry, index)
+            this.props.selectInMusiccollection(Array(end - start + 1).fill().map((_, idx) => start + idx), false)
         } else if (e.ctrlKey) {
-            this.props.selectInMusiccollection([index], false);
+            this.props.selectInMusiccollection([index], false)
         } else {
-            this.state.lastSelectedEntry = index;
-            this.props.selectInMusiccollection([index], true);
+            this.state.lastSelectedEntry = index
+            this.props.selectInMusiccollection([index], true)
         }
     }
 
     addClick = () => {
-        this.props.addSelectedTracks();
+        this.props.addSelectedTracks()
     }
 
     doubleClickedTrack = (item, e) => {
-        this.props.addTracks([item]);
+        this.props.addTracks([item])
     }
 
     //search Track from the searchfield
     search(event){
         if(event.key == "Enter"){
-            event.preventDefault(); //consumes the event
-            this.setState({lastSelectedEntry: -1});
-            this.props.search(this.refs.searchText.value);
+            event.preventDefault() //consumes the event
+            this.setState({lastSelectedEntry: -1})
+            this.props.search(this.refs.searchText.value)
         }
     }
 
     //rebuild the database
     rebuildDb(){
-        this.props.rebuildDb("full");
+        this.props.rebuildDb("full")
     }
 
     // adds a folder to the database
     addToDb(){
-        const {dialog} = require('electron').remote;
-        let folder = dialog.showOpenDialog({title: "Select folder", properties: ['openFile', 'openDirectory']});
+        const {dialog} = require('electron').remote
+        let folder = dialog.showOpenDialog({title: "Select folder", properties: ['openFile', 'openDirectory']})
         // if folder is valid
-        if(folder) this.props.rebuildDb("partial", folder + "/");
+        if(folder) this.props.rebuildDb("partial", folder + "/")
     }
 
     // closes the overlay
     closeOverlay() {
-        this.props.toggleMusiccollectionOverlay(false);
+        this.props.toggleMusiccollectionOverlay(false)
     }
 
     render(){
@@ -181,7 +172,7 @@ class Musiccollection extends Component {
             // no glowing broder on focus
             outline: "none",
             resize: "none",
-        };
+        }
 
         const buttonStyle = {
             backgroundColor: colors.primaryLightColor,
@@ -190,7 +181,7 @@ class Musiccollection extends Component {
             outline: "none",
             cursor: "pointer",
             float: "right",
-        };
+        }
 
         const menuStyle = {
             display: this.state.hoverMore ? "block" : "none",
@@ -223,24 +214,23 @@ class Musiccollection extends Component {
                         <img style={{cursor: "pointer", padding: "20px 2px"}} src="./img/ic_close_white_24dp.png" onClick={this.closeOverlay.bind(this)}></img>
                     </div>
                 </div>
-                {/* FIXME ugly hardcoding of 500px height of other components */}
                 <div style={{position: "fixed", overflowX: "hidden", overflowY: "auto", backgroundColor: colors.primaryColor, height: "calc(100vh - 64px)", width: "100%"}}> {this.createTable()} </div>
             </div>
-        );
+        )
     }
 }
 //maps state (passed in) as props to components
 function mapStateToProps(state){
     return {
         database: state.database,
-        visible: state.mediaplayer.musiccollectionVisible,
-    };
+        visible: state.application.musiccollectionVisible,
+    }
 }
 
 //maps actions to props
 function mapDispatchToProps(dispatch){
-    return bindActionCreators({addSelectedTracks, search, rebuildDb, addTracks, selectInMusiccollection, toggleMusiccollectionOverlay}, dispatch);
+    return bindActionCreators({addSelectedTracks, search, rebuildDb, addTracks, selectInMusiccollection, toggleMusiccollectionOverlay}, dispatch)
 }
 
 //Turn dump component into smart container
-export default connect(mapStateToProps, mapDispatchToProps)(Musiccollection);
+export default connect(mapStateToProps, mapDispatchToProps)(Musiccollection)

@@ -27,4 +27,5 @@ export const opacity = {
     "disabledText": ".5",
     "dividers": ".12",
 }
-export default colors;
+
+export default colors

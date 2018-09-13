@@ -1,9 +1,11 @@
-import React , {Component} from "react";
-var ReactDOM = require('react-dom');
-import {bindActionCreators} from "redux";
-import {connect} from "react-redux";
-import {seek, backward, forward, toggleAutoDj, toggleMusiccollectionOverlay, playPause} from "../actions/actions-mediaplayer.js";
-import {colors} from "../style.js";
+import React , {Component} from "react"
+var ReactDOM = require('react-dom')
+import {bindActionCreators} from "redux"
+import {connect} from "react-redux"
+import {seek, backward, forward, toggleAutoDj, playPause} from "../actions/actions-mediaplayer.js"
+import {toggleMusiccollectionOverlay} from '../actions/actions-application.js'
+import {colors} from "../style.js"
+import * as constants from '../constants/constants.js'
 
 const smallIconStyle = {
     padding: "12px 4px",
@@ -42,72 +44,72 @@ const progBarContStyle = {
 const timeLabelStyle = {
     fontSize: "13px",
     opacity: 0.5,
-};
+}
 
 
 
 class Controls extends Component {
     seek(e){
-        let obj = ReactDOM.findDOMNode(this);
+        let obj = ReactDOM.findDOMNode(this)
         // offsetX: x pos of click on element (0px far left, width px far right)
         // this.refs.bgProg.clientWidth: width of the element
-        this.props.seek(e.nativeEvent.offsetX/this.refs.bgProg.clientWidth);
+        this.props.seek(e.nativeEvent.offsetX/this.refs.bgProg.clientWidth)
     }
     backward(){
-        this.props.backward();
+        this.props.backward()
     }
     forward(){
-        this.props.forward();
+        this.props.forward()
     }
     playpause(){
-        this.props.playPause();
+        this.props.playPause()
     }
     toggleAutoDj(){
-        this.props.toggleAutoDj();
+        this.props.toggleAutoDj()
     }
 
     // shows the musiccollection overlay
     showMusiccollectionOverlay() {
-        this.props.toggleMusiccollectionOverlay(true);
+        this.props.toggleMusiccollectionOverlay(true)
     }
 
     convertSecondsToCustomFormat(seconds){
         if(seconds){
             // return seconds in format m:ss
-            return Math.floor(seconds/60) + ":" + ("0" + Math.floor(seconds%60)).slice(-2);
+            return Math.floor(seconds/60) + ":" + ("0" + Math.floor(seconds%60)).slice(-2)
         }else{
-            return null;
+            return null
         }
     }
 
     render(){
-        let playPauseIcon;
-        if(this.props.status=="playing"){
-            playPauseIcon = "./img/ic_pause_circle_filled_white_36dp.png";
+        let playPauseIcon
+        if(this.props.playing){
+            playPauseIcon = "./img/ic_pause_circle_filled_white_36dp.png"
         }else{
-            playPauseIcon = "./img/ic_play_circle_filled_white_36dp.png";
+            playPauseIcon = "./img/ic_play_circle_filled_white_36dp.png"
         }
         // display autoDJ status
-        let opac;
-        if (this.props.autoDj === "none") {
-            opac = .2;
-        } else if (this.props.autoDj === "random") {
-            opac = .6;
-        } else if (this.props.autoDj === "albumartist") {
-            opac = 1;
+        let opac
+        if (this.props.autoDj === constants.AUTODJ_OFF) {
+            opac = .2
+        } else if (this.props.autoDj === constants.AUTODJ_RANDOM) {
+            opac = .6
+        } else if (this.props.autoDj === constants.AUTODJ_ALBUM_ARTIST) {
+            opac = 1
         }
         // compute progress in percent and round to integer
-        let progress = 0;
+        let progress = 0
         if(this.props.time!=null && this.props.duration!=null){
-           progress = Math.round(this.props.time/this.props.duration*1000)/10;
+           progress = Math.round(this.props.time/this.props.duration*1000)/10
         }
 
         // set border
-        let b = (progress == 0) ? 0 : 1;
+        let b = (progress == 0) ? 0 : 1
 
         // determine margin left and right for progressbar (if no time is displayed, the margin between bar and label is not needed)
-        let margL = this.props.time ? "8px" : "0";
-        let margR = this.props.duration ? "8px" : "0";
+        let margL = this.props.time ? "8px" : "0"
+        let margR = this.props.duration ? "8px" : "0"
         return(
             <div>
                 <div style={progContStyle}>
@@ -130,23 +132,23 @@ class Controls extends Component {
                     </div>
                 </div>
             </div>
-        );
+        )
    }
 }
 //maps state (passed in) as props to components
 function mapStateToProps(state){
     return {
-        status: state.mediaplayer.status,
+        playing: state.mediaplayer.playing,
         time: state.mediaplayer.time,
         duration: state.mediaplayer.duration,
         autoDj: state.mediaplayer.autoDj,
-    };
+    }
 }
 
 //maps actions to props
 function mapDispatchToProps(dispatch){
-    return bindActionCreators({seek, backward, forward, toggleAutoDj, playPause, toggleMusiccollectionOverlay}, dispatch);
+    return bindActionCreators({seek, backward, forward, toggleAutoDj, playPause, toggleMusiccollectionOverlay}, dispatch)
 }
 
 //Turn dump component into smart container
-export default connect(mapStateToProps, mapDispatchToProps)(Controls);
+export default connect(mapStateToProps, mapDispatchToProps)(Controls)
