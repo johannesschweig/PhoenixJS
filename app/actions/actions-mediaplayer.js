@@ -218,8 +218,17 @@ export const forward = () => {
     }
 }
 
+// user action: delete key was pressed
+export const deletePressed = () => {
+    return function(dispatch, getState) {
+        // only if musiccollection is visible (otherwise deleting in the search field will cause unwanted behavior)
+        if (!getState().application.musiccollectionVisible) {
+            dispatch(deleteSelectedTracks())
+        }
+    }
+}
 
-// user action: delete selected tracks from the tracklist
+// user action / system action: delete selected tracks from the tracklist
 export const deleteSelectedTracks = () => {
     return function(dispatch, getState){
         // iterate over all tracks

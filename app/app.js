@@ -8,7 +8,7 @@ import {applyMiddleware, createStore} from 'redux'
 import reducers from "./reducers/index.js"
 import App from "./components/app.js"
 import {startDb} from "./actions/actions-database.js"
-import {forward, play, pause, updateElapsedTime, backward, playPause, toggleAutoDj, setDuration} from "./actions/actions-mediaplayer.js"
+import {forward, play, pause, updateElapsedTime, backward, playPause, toggleAutoDj, setDuration, deletePressed} from "./actions/actions-mediaplayer.js"
 import {toggleMusiccollectionOverlay} from './actions/actions-application.js'
 import * as constants from './constants/constants.js'
 
@@ -66,6 +66,8 @@ window.addEventListener('keyup', (e) => {
         case "Escape": store.dispatch(toggleMusiccollectionOverlay(false))
             break
         case "KeyF": store.dispatch(toggleMusiccollectionOverlay(true))
+            break
+        case "Delete": store.dispatch(deletePressed())
             break
     }
 }, true)
