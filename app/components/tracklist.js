@@ -94,7 +94,7 @@ class Tracklist extends Component {
                 <div style={{height: "300px", marginLeft: "300px"}}>
                     <div style={{height: "48px", fontSize: "20px", paddingLeft: "16px", lineHeight: "48px", backgroundColor: colors.primaryLightColor, opacity: opacity.primaryText, marginBottom: "4px"}}>
                         <div style={{float: "left"}}>Tracklist</div>
-                        <img style={delStyle} onClick={this.deleteSelectedTracks.bind(this)} src="./img/ic_delete_white_24dp.png"></img>
+                        <img style={delStyle} onClick={this.deleteSelectedTracks.bind(this)} src="./img/ic_delete_white_24dp.png" data-tip='Delete tracks (Delete)' data-delay-show={constants.DELAY_TOOLTIP}></img>
                     </div>
                     <div style={{height: "252px", overflow: "auto"}}>
                         {this.createTracklist()}

@@ -205,13 +205,13 @@ class Musiccollection extends Component {
                         <textarea ref="searchText" placeholder="Search" onKeyPress={this.search.bind(this)} style={textStyle}/>
                     </div>
                     <div style={{float: "right", position: "relative", display: "inline-block"}}>
-                        <img onClick={this.addClick} style={{padding: "20px 4px", opacity: this.state.lastSelectedEntry == -1 ? .7 : 1, cursor: this.state.lastSelectedEntry == -1 ? "auto" : "pointer"}} src="./img/ic_playlist_add_white_24dp.png"></img>
+                        <img onClick={this.addClick} style={{padding: "20px 4px", opacity: this.state.lastSelectedEntry == -1 ? .7 : 1, cursor: this.state.lastSelectedEntry == -1 ? "auto" : "pointer"}} src="./img/ic_playlist_add_white_24dp.png" data-tip='Add to tracklist' data-delay-show={constants.DELAY_TOOLTIP}></img>
                         <img style={{cursor: "pointer", padding: "20px 2px"}} src="./img/ic_more_vert_white_24dp.png"  onMouseEnter={this.hoverMoreOn} onMouseLeave={this.hoverMoreOff}></img>
                         <div style={menuStyle} onMouseEnter={this.hoverMoreOn} onMouseLeave={this.hoverMoreOff}>
                             <div style={menuItemStyle} onClick={this.rebuildDb.bind(this)}>Rebuild database</div>
                             <div style={menuItemStyle} onClick={this.addToDb.bind(this)}>Add folder to database</div>
                         </div>
-                        <img style={{cursor: "pointer", padding: "20px 2px"}} src="./img/ic_close_white_24dp.png" onClick={this.closeOverlay.bind(this)}></img>
+                        <img style={{cursor: "pointer", padding: "20px 2px"}} src="./img/ic_close_white_24dp.png" onClick={this.closeOverlay.bind(this)} data-tip='Close search (Esc)' data-delay-show={constants.DELAY_TOOLTIP}></img>
                     </div>
                 </div>
                 <div style={{position: "fixed", overflowX: "hidden", overflowY: "auto", backgroundColor: colors.primaryColor, height: "calc(100vh - 64px)", width: "100%"}}> {this.createTable()} </div>

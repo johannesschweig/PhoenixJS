@@ -84,19 +84,26 @@ class Controls extends Component {
 
     render(){
         let playPauseIcon
+        let playPauseLabel
         if(this.props.playing){
             playPauseIcon = "./img/ic_pause_circle_filled_white_36dp.png"
+            playPauseLabel = 'Pause'
         }else{
             playPauseIcon = "./img/ic_play_circle_filled_white_36dp.png"
+            playPauseLabel = 'Play'
         }
-        // display autoDJ status
+        // autoDJ status
         let opac
+        let autoDjMode
         if (this.props.autoDj === constants.AUTODJ_OFF) {
             opac = .2
+            autoDjMode = 'disabled'
         } else if (this.props.autoDj === constants.AUTODJ_RANDOM) {
             opac = .6
+            autoDjMode = 'random'
         } else if (this.props.autoDj === constants.AUTODJ_ALBUM_ARTIST) {
             opac = 1
+            autoDjMode = 'album or artist'
         }
         // compute progress in percent and round to integer
         let progress = 0
@@ -122,13 +129,13 @@ class Controls extends Component {
                 </div>
                 <div style={{height: "48px", paddingBottom: "8px"}}>
                     <div style={{float: "right", marginRight: "24px"}}>
-                        <img onClick={this.showMusiccollectionOverlay.bind(this)} style={smallIconStyle} src="./img/ic_search_white_24dp.png"></img>
-                        <img onClick={this.toggleAutoDj.bind(this)} style={{...smallIconStyle, opacity: opac}} src="./img/ic_add_to_queue_white_24dp.png"></img>
+                        <img onClick={this.showMusiccollectionOverlay.bind(this)} style={smallIconStyle} src="./img/ic_search_white_24dp.png" data-tip="Show search (F)" data-delay-show={constants.DELAY_TOOLTIP}></img>
+                        <img onClick={this.toggleAutoDj.bind(this)} style={{...smallIconStyle, opacity: opac}} src="./img/ic_add_to_queue_white_24dp.png" data-tip={'AutoDJ ' + autoDjMode + '<br>(Ctrl End)'} data-delay-show={constants.DELAY_TOOLTIP} data-multiline={true}></img>
                     </div>
                     <div style={{margin: "0 auto", width: "150px"}}>
-                        <img onClick={this.backward.bind(this)} style={smallIconStyle} src="./img/ic_skip_previous_white_24dp.png"></img>
-                        <img onClick={this.playpause.bind(this)} style ={bigIconStyle} src={playPauseIcon}></img>
-                        <img onClick={this.forward.bind(this)} style={smallIconStyle} src="./img/ic_skip_next_white_24dp.png"></img>
+                        <img onClick={this.backward.bind(this)} style={smallIconStyle} src="./img/ic_skip_previous_white_24dp.png" data-tip="Backward (Ctrl Pgup)" data-delay-show={constants.DELAY_TOOLTIP}></img>
+                        <img onClick={this.playpause.bind(this)} style ={bigIconStyle} src={playPauseIcon} data-tip={playPauseLabel + " (Ctrl Home)"} data-delay-show={constants.DELAY_TOOLTIP}></img>
+                        <img onClick={this.forward.bind(this)} style={smallIconStyle} src="./img/ic_skip_next_white_24dp.png" data-tip='Forward (Ctrl Pgdown)' data-delay-show={constants.DELAY_TOOLTIP}></img>
                     </div>
                 </div>
             </div>
