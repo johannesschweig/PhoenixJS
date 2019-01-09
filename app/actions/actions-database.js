@@ -1,6 +1,7 @@
 import {addTracks} from "./actions-mediaplayer.js"
 import * as types from './types.js'
 import * as constants from '../constants/constants.js'
+import {startMetadataBatch} from '../utils/metadataBatch.js'
 
 // when database has been started
 export const startDb = () => {
@@ -31,31 +32,19 @@ export const rebuildDb = (mode, folder) => {
                 database.loadDatabase(function (err) {    })
             })
         }
+        // regex matching filenames (mp3) depending on github issue: https://github.com/fshost/node-dir/issues/38
         require('node-dir').files(path, function(err, files) {
             if (err) dispatch(rebuildDbRejected("ERROR while reading the database directory"))
-            files.forEach(function(file){
-                if(file.endsWith(".mp3")){
-                    mm.parseFile(file)
-                        .then( metadata => {
-                            let md = metadata.common
-                            // to avoid ratings being undefined
-                            let r = 0
-                            if(md.rating && md.rating.length>0){
-                                r = Math.round(md.rating[0].rating)
-                            }
-                            //remove rootPath from filepath
-                            let filePath = file.replace(constants.ROOT_PATH, "")
-                            database.insert({path: filePath, title: md.title, track: md.track.no, artist: md.artist, albumartist: md.albumartist, album: md.album, year: md.year, rating: r, selected: false})
-                        })
-                        .catch((err) => {
-                                console.log(err.message)
-                        })
-                }
-            })
-            dispatch(rebuildDbFulfilled(mode, folder))
+            // filter mp3s
+            files = files.filter((file) => file.endsWith('.mp3'))
+            console.log("INFO starting", mode, "database rebuild")
+            startMetadataBatch(files)
+            // dispatch(rebuildDbFulfilled(mode, folder))
         })
     }
 }
+
+
 
 export const rebuildDbFulfilled = (mode, folder) => {
     return {
