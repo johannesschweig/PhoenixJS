@@ -14,6 +14,7 @@ test/
 .babelrc
 .eslintignore
 .eslintrc
+package.json.backup
 electron-builder.yml
-notes.txt
+notes.md
 yarn-error.log
