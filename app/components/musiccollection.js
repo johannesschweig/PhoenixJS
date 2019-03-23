@@ -5,6 +5,8 @@ import {addSelectedTracks, search, rebuildDb, selectInMusiccollection} from "../
 import {addTracks} from "../actions/actions-mediaplayer.js"
 import {toggleMusiccollectionOverlay} from "../actions/actions-application.js"
 import {colors, opacity} from "../style.js"
+import {ContextMenuTrigger} from "react-contextmenu"
+
 
 class Musiccollection extends Component {
     constructor(props){
@@ -43,14 +45,16 @@ class Musiccollection extends Component {
                 backgroundColor: item.selected ? colors.primaryLightColor : "transparent",
             }
             return(
-                <tr  key={item._id} style={rowStyle} onClick={(e) => this.clickedTrack(item.index, e)} onDoubleClick={(e) => this.doubleClickedTrack(item, e)}>
-                <td style={{...style, paddingLeft: "24px"}}>{item.title}</td>
-                <td style={{...style, paddingRight: "56px"}}>{item.albumartist}</td>
-                <td style={{...style, paddingRight: "56px"}}>{item.album}</td>
-                <td style={{...style, paddingRight: "56px"}}>{item.year}</td>
-                <td style={{...style, paddingRight: "56px"}}>{item.track}</td>
-                <td style={{...style, paddingRight: "24px"}}>{this.createRating(item.rating)}</td>
-                </tr>
+                <ContextMenuTrigger id={constants.SHOW_IN_FILE_EXPLORER} renderTag='tbody' attributes={{'path': item.path}} disableIfShiftIsPressed={true} key={item._id}>
+                    <tr onClick={(e) => this.clickedTrack(item.index, e)} onDoubleClick={(e) => this.doubleClickedTrack(item, e)} style={rowStyle}>
+                    <td style={{...style, paddingLeft: "24px"}}>{item.title}</td>
+                    <td style={{...style, paddingRight: "56px"}}>{item.albumartist}</td>
+                    <td style={{...style, paddingRight: "56px"}}>{item.album}</td>
+                    <td style={{...style, paddingRight: "56px"}}>{item.year}</td>
+                    <td style={{...style, paddingRight: "56px"}}>{item.track}</td>
+                    <td style={{...style, paddingRight: "24px"}}>{this.createRating(item.rating)}</td>
+                    </tr>
+                </ContextMenuTrigger>
             )
         })
     }
@@ -94,16 +98,16 @@ class Musiccollection extends Component {
             return(
                 <table style={{borderCollapse: "collapse", width: "100%"}}>
                     <thead>
-                    <tr style={{height: "56px"}}>
-                    <th style={{...headerStyle, paddingLeft: "24px"}}>Title</th>
-                    <th style={headerStyle}>Albumartist</th>
-                    <th style={headerStyle}>Album</th>
-                    <th style={headerStyle}>Year</th>
-                    <th style={headerStyle}>Track</th>
-                    <th style={{...headerStyle, paddingRight: "24px"}}>Rating</th>
-                    </tr>
+                        <tr style={{height: "56px"}}>
+                            <th style={{...headerStyle, paddingLeft: "24px"}}>Title</th>
+                            <th style={headerStyle}>Albumartist</th>
+                            <th style={headerStyle}>Album</th>
+                            <th style={headerStyle}>Year</th>
+                            <th style={headerStyle}>Track</th>
+                            <th style={{...headerStyle, paddingRight: "24px", minWidth: "66px"}}>Rating</th>
+                        </tr>
                     </thead>
-                    <tbody>{this.createRows()}</tbody>
+                    {this.createRows()}
                 </table>
             )
         }
@@ -123,10 +127,12 @@ class Musiccollection extends Component {
         }
     }
 
+    // adds track(s) to tracklist when add button is clicked
     addClick = () => {
         this.props.addSelectedTracks()
     }
 
+    // adds a track to tracklist on doubleclick
     doubleClickedTrack = (item, e) => {
         this.props.addTracks([item])
     }
@@ -199,14 +205,18 @@ class Musiccollection extends Component {
 
         return(
             <div style={{position: "fixed", top: this.props.visible ? "0px" : "500px", width: "100%", height: "100%", transition: "top 0.5s ease-in-out"}}>
+                {/* top bar containing searchbox and actions */}
                 <div style={{display: "block", padding: "0 24px", backgroundColor: colors.primaryLightColor, height: "64px"}}>
+                    {/* search icon and searchbox*/}
                     <div style={{display: "inline", height: "inherit", lineHeight: "64px", fontSize: "20px"}}>
                         <img style={{margin: "20px 4px"}} src="./img/ic_search_white_24dp.png"></img>
                         <textarea ref="searchText" placeholder="Search" onKeyPress={this.search.bind(this)} style={textStyle}/>
                     </div>
+                    {/* actions: add, more, close */}
                     <div style={{float: "right", position: "relative", display: "inline-block"}}>
                         <img onClick={this.addClick} style={{padding: "20px 4px", opacity: this.state.lastSelectedEntry == -1 ? .7 : 1, cursor: this.state.lastSelectedEntry == -1 ? "auto" : "pointer"}} src="./img/ic_playlist_add_white_24dp.png" data-tip='Add to tracklist' data-delay-show={constants.DELAY_TOOLTIP}></img>
                         <img style={{cursor: "pointer", padding: "20px 2px"}} src="./img/ic_more_vert_white_24dp.png"  onMouseEnter={this.hoverMoreOn} onMouseLeave={this.hoverMoreOff}></img>
+                        {/* hover menu */}
                         <div style={menuStyle} onMouseEnter={this.hoverMoreOn} onMouseLeave={this.hoverMoreOff}>
                             <div style={menuItemStyle} onClick={this.rebuildDb.bind(this)}>Rebuild database</div>
                             <div style={menuItemStyle} onClick={this.addToDb.bind(this)}>Add folder to database</div>
@@ -214,6 +224,7 @@ class Musiccollection extends Component {
                         <img style={{cursor: "pointer", padding: "20px 2px"}} src="./img/ic_close_white_24dp.png" onClick={this.closeOverlay.bind(this)} data-tip='Close search (Esc)' data-delay-show={constants.DELAY_TOOLTIP}></img>
                     </div>
                 </div>
+                {/* Table */}
                 <div style={{position: "fixed", overflowX: "hidden", overflowY: "auto", backgroundColor: colors.primaryColor, height: "calc(100vh - 64px)", width: "100%"}}> {this.createTable()} </div>
             </div>
         )

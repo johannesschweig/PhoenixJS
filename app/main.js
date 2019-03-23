@@ -49,7 +49,8 @@ app.on('ready', async () => {
         minWidth: 640,
         minHeight: 455,
         show: false,
-        icon: path.join(__dirname, "/img/icon.png")
+        icon: path.join(__dirname, "/img/icon.png"),
+        frame: false
     })
 
     mainWindow.loadURL(url.format({

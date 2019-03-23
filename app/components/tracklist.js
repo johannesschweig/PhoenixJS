@@ -4,6 +4,7 @@ import {connect} from "react-redux"
 import {deleteSelectedTracks, changeTrack, play, selectInTracklist} from "../actions/actions-mediaplayer.js"
 import Tile from "./tile.js"
 import {colors, opacity} from "../style.js"
+import {ContextMenuTrigger} from "react-contextmenu"
 
 class Tracklist extends Component {
 
@@ -16,35 +17,38 @@ class Tracklist extends Component {
         this.lastTracklistLength = -1
         this.lastCurrentTrack = -1
     }
+
     //populates <li> with items from state
     createTracklist(){
         return this.props.tracklist.map((track, i) => {
             let active = (i == this.props.currentTrack)
             return(
                 <div ref={i} key={i}>
-                    <Tile
-                    key={track.id}
-                    index={i}
-                    active={active}
-                    title={track.title}
-                    artist={track.artist}
-                    albumartist={track.albumartist}
-                    selected={track.selected}
-                    id={track.id}
-                    path={track.path}
-                    onClick={this.clickedTrack.bind(this, i)}
-                    onDoubleClick={this.doubleClickedTrack.bind(this, i)}/>
+                    <ContextMenuTrigger id={constants.SHOW_IN_FILE_EXPLORER} attributes={{'path': track.path}} disableIfShiftIsPressed={true}>
+                        <Tile
+                        key={track.id}
+                        index={i}
+                        active={active}
+                        title={track.title}
+                        artist={track.artist}
+                        albumartist={track.albumartist}
+                        selected={track.selected}
+                        id={track.id}
+                        path={track.path}
+                        onClick={this.clickedTrack.bind(this, i)}
+                        onDoubleClick={this.doubleClickedTrack.bind(this, i)}/>
+                    </ContextMenuTrigger>
                 </div>
             )
         })
     }
-
 
     //delete selected tracks from tracklist
     deleteSelectedTracks(){
         this.props.deleteSelectedTracks()
         this.setState({lastSelectedEntry: -1})
     }
+
     //converts Uint8Array into base64 coding
     arrayBufferToBase64( buffer ) {
         var binary = ''
@@ -90,12 +94,16 @@ class Tracklist extends Component {
 
         return(
             <div style={{width: "700px", margin: "24px auto"}}>
+                {/* cover image */}
                 <img style={{float: "left", height: "300px", width: "300px"}} src={img_path}></img>
+                {/* tracklist */}
                 <div style={{height: "300px", marginLeft: "300px"}}>
+                    {/* header */}
                     <div style={{height: "48px", fontSize: "20px", paddingLeft: "16px", lineHeight: "48px", backgroundColor: colors.primaryLightColor, opacity: opacity.primaryText, marginBottom: "4px"}}>
                         <div style={{float: "left"}}>Tracklist</div>
                         <img style={delStyle} onClick={this.deleteSelectedTracks.bind(this)} src="./img/ic_delete_white_24dp.png" data-tip='Delete tracks (Delete)' data-delay-show={constants.DELAY_TOOLTIP}></img>
                     </div>
+                    {/* tracks */}
                     <div style={{height: "252px", overflow: "auto"}}>
                         {this.createTracklist()}
                     </div>

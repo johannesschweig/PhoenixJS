@@ -1,6 +1,7 @@
 import {searchRejected} from "./actions-database.js"
 import * as types from './types.js'
 import * as constants from '../constants/constants.js'
+import {getSafePath} from '../utils/index.js'
 
 // user action: play/pause button pressed
 export const playPause = () => {
@@ -16,7 +17,7 @@ export const playPause = () => {
             if (currentTrack == -1) {
                 // non-empty tracklist
                 if (tracklist.length > 0) {
-                    audiofile.src = constants.ROOT_PATH + tracklist[currentTrack + 1].path
+                    audiofile.src = getSafePath(constants.ROOT_PATH + tracklist[currentTrack + 1].path)
                     audiofile.play()
                     dispatch(loadCover(tracklist[currentTrack + 1].path))
                     dispatch(moveCurrentTrack(1))
@@ -92,7 +93,7 @@ export const backward = () => {
             audiofile.currentTime = 0
             dispatch(resetElapsedTime())
         } else if (time < 10 & currentTrack > 0) { // if there is a previous track and time elapsed < 10
-            audiofile.src = constants.ROOT_PATH + tracklist[currentTrack - 1].path
+            audiofile.src = getSafePath(constants.ROOT_PATH + tracklist[currentTrack - 1].path)
             dispatch(loadCover(tracklist[currentTrack - 1].path))
             dispatch(moveCurrentTrack(-1))
             dispatch(resetElapsedTime())
@@ -132,7 +133,7 @@ export const forward = () => {
         let autoDj = getState().mediaplayer.autoDj
         // if there is a next track in tracklist -> play next track
         if (tracklist.length > currentTrack + 1) {
-            audiofile.src = constants.ROOT_PATH + tracklist[currentTrack + 1].path
+            audiofile.src = getSafePath(constants.ROOT_PATH + tracklist[currentTrack + 1].path)
             dispatch(loadCover(tracklist[currentTrack + 1].path))
             dispatch(resetElapsedTime())
             dispatch(moveCurrentTrack(1))
@@ -147,7 +148,7 @@ export const forward = () => {
                         var skipCount = Math.floor(Math.random() * count)
                         database.find({}).skip(skipCount).limit(1).exec(function (err2, docs) {
                             if (!err2) {
-                                audiofile.src = constants.ROOT_PATH + docs[0].path
+                                audiofile.src = getSafePath(constants.ROOT_PATH + docs[0].path)
                                 audiofile.play()
                                 dispatch(addTracks(docs))
                                 dispatch(loadCover(docs[0].path))
@@ -172,7 +173,7 @@ export const forward = () => {
                         if(docs.length > 0){
                             // choose random track out of found tracks
                             let t = Math.floor(Math.random() * docs.length)
-                            audiofile.src = constants.ROOT_PATH + docs[t].path
+                            audiofile.src = getSafePath(constants.ROOT_PATH + docs[t].path)
                             audiofile.play()
                             dispatch(addTracks([docs[t]]))
                             dispatch(loadCover(docs[t].path))
@@ -272,7 +273,7 @@ export const deleteSelectedTracks = () => {
                 // FIXME order important...ugly
                 dispatch(deleteTracks(toDelete))
                 tracklist = getState().mediaplayer.tracklist
-                audiofile.src = constants.ROOT_PATH + tracklist[newCurrentTrack].path
+                audiofile.src = getSafePath(constants.ROOT_PATH + tracklist[newCurrentTrack].path)
                 dispatch(loadCover(tracklist[newCurrentTrack].path))
                 dispatch(setCurrentTrack(newCurrentTrack))
                 dispatch(resetElapsedTime())

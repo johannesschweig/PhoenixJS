@@ -37,7 +37,7 @@ export const rebuildDb = (mode, folder) => {
             if (err) dispatch(rebuildDbRejected("ERROR while reading the database directory"))
             // filter mp3s
             files = files.filter((file) => file.endsWith('.mp3'))
-            console.log("INFO starting", mode, "database rebuild")
+            console.log("INFO starting", mode, "database update")
             startMetadataBatch(files)
             // dispatch(rebuildDbFulfilled(mode, folder))
         })

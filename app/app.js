@@ -45,7 +45,7 @@ audiofile.addEventListener("timeupdate", () => store.dispatch(updateElapsedTime(
 const mm = require("music-metadata")
 
 // version
-console.log("INFO loaded version 18.09.2018")
+console.log("INFO loaded version 23.03.2019")
 
 // Handle keyboard shortcuts
 ipcRenderer.on("forward", () => {
