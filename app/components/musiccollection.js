@@ -204,7 +204,7 @@ class Musiccollection extends Component {
         }
 
         return(
-            <div style={{position: "fixed", top: this.props.visible ? "0px" : "500px", width: "100%", height: "100%", transition: "top 0.5s ease-in-out"}}>
+            <div style={{position: "fixed", top: this.props.visible ? "0px" : "500px", width: "100%", height: "100%", transition: "top 0.5s ease-in-out", WebkitAppRegion: 'no-drag'}}>
                 {/* top bar containing searchbox and actions */}
                 <div style={{display: "block", padding: "0 24px", backgroundColor: colors.primaryLightColor, height: "64px"}}>
                     {/* search icon and searchbox*/}
